@@ -1,4 +1,4 @@
-import { routes } from '../app/routes'
+import { routes, workstreamPath } from '../app/routes'
 import { architectureConnections, architectureNodes } from '../data/architecture'
 import { evidence } from '../data/evidence'
 import { gates } from '../data/gates'
@@ -38,6 +38,7 @@ export function describeEntity(ref: EntityRef): { title: string; href?: string }
 
   const gate = ref.kind === 'gate' ? gates.find(({ id }) => id === ref.id) : undefined
   const riskInitiative = ref.kind === 'risk' ? risks.find(({ id }) => id === ref.id)?.initiativeIds[0] : undefined
+  const team = ref.kind === 'team' ? teamContributions.find(({ id }) => id === ref.id) : undefined
 
   const links: Partial<Record<EntityKind, string>> = {
     pillar: routes.strategy,
@@ -50,7 +51,7 @@ export function describeEntity(ref: EntityRef): { title: string; href?: string }
     evidence: `${routes.evidence}?tab=evidence&focus=${encodeURIComponent(ref.id)}`,
     gate: gate && `${routes.gate}?initiative=${encodeURIComponent(gate.initiativeId)}&stage=${gate.stage.toLowerCase()}`,
     risk: riskInitiative && `${routes.gate}?initiative=${encodeURIComponent(riskInitiative)}`,
-    team: `${routes.evidence}?tab=team-inputs&focus=${encodeURIComponent(ref.id)}`,
+    team: team && workstreamPath(team.workstreamId),
     architecture: routes.architecture,
   }
 

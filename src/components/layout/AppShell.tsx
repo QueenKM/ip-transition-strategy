@@ -1,6 +1,6 @@
 import {
-  Activity, ArrowRightLeft, BookOpen, ChartNoAxesCombined, Compass, GitBranch,
-  Layers3, ListChecks, Network, Route, Waypoints,
+  Activity, ArrowRightLeft, BookOpen, ChartNoAxesCombined, Compass, GitBranch, LayoutGrid,
+  Layers3, ListChecks, Network, Route, ShieldCheck, Waypoints,
 } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
@@ -8,13 +8,14 @@ import { routes } from '../../app/routes'
 import styles from './AppShell.module.css'
 
 const strategyNav = [
-  { to: routes.strategy, label: 'Overview', Icon: ChartNoAxesCombined },
+  { to: routes.strategy, label: 'Integration', Icon: ChartNoAxesCombined },
   { to: routes.valueChain, label: 'Value chain', Icon: Waypoints },
   { to: routes.portfolio, label: 'Portfolio', Icon: Layers3 },
   { to: routes.roadmap, label: 'Roadmap', Icon: Route },
   { to: routes.evidence, label: 'KPIs & evidence', Icon: BookOpen },
   { to: routes.gate, label: 'Decision gate', Icon: ListChecks },
   { to: routes.architecture, label: 'Architecture', Icon: Network },
+  { to: routes.governance, label: 'Governance', Icon: ShieldCheck },
 ]
 
 const mobilityNav = [
@@ -48,22 +49,26 @@ export default function AppShell() {
   }, [pathname])
 
   return (
-    <div className={styles.shell} data-view={isMobility ? 'mobility' : 'strategy'}>
+    <div className={styles.shell} data-view={isMobility ? 'mobility' : isStrategy ? 'strategy' : 'group'}>
       <a className={styles.skip} href="#main-content" onClick={(event) => {
         event.preventDefault()
         mainRef.current?.focus()
       }}>Skip to main content</a>
       <header className={styles.header}>
         <div className={styles.topbar}>
-          <Link className={styles.brand} to={routes.strategy} aria-label="Energy Transition Intelligence overview">
+          <Link className={styles.brand} to={routes.home} aria-label="IP Long-Term Sustainability Strategy home">
             <span className={styles.mark}><GitBranch size={21} strokeWidth={2.15} aria-hidden="true" /></span>
-            <span className={styles.brandName}>Energy Transition Intelligence<span>Italiana Petroli case study</span></span>
+            <span className={styles.brandName}>IP Sustainability Strategy<span>Academic group prototype</span></span>
           </Link>
           <nav className={styles.views} aria-label="Application views">
+            <Link className={pathname === routes.home ? styles.activeView : styles.view} to={routes.home}
+              aria-current={pathname === routes.home ? 'page' : undefined}><GitBranch size={15} aria-hidden="true" /> Group strategy</Link>
+            <Link className={pathname.startsWith(routes.workstreams) ? styles.activeView : styles.view} to={routes.workstreams}
+              aria-current={pathname === routes.workstreams ? 'page' : undefined}><LayoutGrid size={15} aria-hidden="true" /> Workstreams</Link>
             <Link className={isStrategy ? styles.activeView : styles.view} to={routes.strategy}
               aria-current={isStrategy ? 'location' : undefined}><ChartNoAxesCombined size={15} aria-hidden="true" /> Strategy Control</Link>
             <Link className={isMobility ? styles.activeView : styles.view} to={routes.explore}
-              aria-current={isMobility ? 'location' : undefined}><Compass size={15} aria-hidden="true" /> Customer &amp; Fleet</Link>
+              aria-current={isMobility ? 'location' : undefined}><Compass size={15} aria-hidden="true" /> Proof of concept</Link>
           </nav>
           <NavLink className={({ isActive }) => isActive ? styles.aboutActive : styles.about} to={routes.about}>
             About<span> the prototype</span>
@@ -87,7 +92,7 @@ export default function AppShell() {
       </main>
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
-          <span><Activity size={16} aria-hidden="true" /> Part 7 · Integrated strategy and roadmap</span>
+          <span><Activity size={16} aria-hidden="true" /> IP Long-Term Sustainability Strategy</span>
           <Link to={routes.about}>Independent academic prototype</Link>
         </div>
       </footer>

@@ -52,7 +52,7 @@
 .about:hover, .aboutActive, .aboutActive:hover { color: var(--ink); text-decoration: underline; text-underline-offset: .25rem; }
 
 .sectionNav { background: var(--surface-sunken); border-bottom: 1px solid var(--line-subtle); }
-.navInner { display: flex; gap: clamp(.15rem, 1.1vw, 1.15rem); align-items: stretch; }
+.navInner { display: flex; gap: clamp(.15rem, 1.1vw, 1.15rem); align-items: stretch; overflow-x: auto; scrollbar-width: thin; }
 .navLink, .activeLink {
   display: inline-flex;
   align-items: center;
@@ -84,18 +84,21 @@
 @media (max-width: 880px) {
   .topbar { grid-template-columns: 1fr auto max-content; }
   .about span, .aboutActive span { display: none; }
-  .navInner { overflow-x: auto; scrollbar-width: thin; }
 }
-@media (max-width: 620px) {
+@media (max-width: 760px) {
   .topbar { grid-template-columns: 1fr auto; gap: .55rem; padding-block: .62rem; }
   .brand { gap: .53rem; }
   .brandName { font-size: .9rem; }
   .brandName span { letter-spacing: 0; }
   .mark { width: 2.2rem; height: 2.2rem; }
-  .views { grid-row: 2; grid-column: 1 / -1; justify-self: stretch; }
-  .views a { text-align: center; flex: 1; padding-inline: .4rem; font-size: .84rem; }
+  .views { grid-row: 2; grid-column: 1 / -1; justify-self: stretch; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .views a { text-align: center; padding-inline: .32rem; font-size: .82rem; white-space: normal; }
+  .views svg { flex-shrink: 0; }
   .about, .aboutActive { grid-row: 1; grid-column: 2; }
   .navLink, .activeLink { font-size: .8rem; }
   .navLink svg, .activeLink svg { width: .9rem; }
   .footerInner { padding-block: .8rem; flex-wrap: wrap; gap: .45rem; }
+}
+@media (max-width: 460px) {
+  .views { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

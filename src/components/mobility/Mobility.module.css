@@ -69,6 +69,19 @@
   font-size: 0.875rem;
 }
 
+.scopeDisclaimer {
+  display: block;
+  color: var(--illustrative-fg);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.45;
+}
+
+.scenarioBar .scopeDisclaimer {
+  margin-block-start: 0.2rem;
+}
+
 .finder {
   padding: 0.875rem 1.25rem;
   border: 1px solid var(--mobility-border);
@@ -404,6 +417,15 @@
   font-weight: 700;
 }
 
+.journeyScope {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+  max-width: 16rem;
+  text-align: end;
+}
+
 .journeySteps {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -575,6 +597,11 @@
   .journeyLead > :last-child {
     grid-column: 2;
     justify-self: start;
+  }
+
+  .journeyScope {
+    align-items: flex-start;
+    text-align: start;
   }
 
   .locationHead {

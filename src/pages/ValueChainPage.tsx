@@ -44,7 +44,7 @@ export default function ValueChainPage() {
       <PageHeading
         title="Integrated Value Chain"
         eyebrow="Strategy control"
-        description="Follow certified fuels from refining and procurement, and charging from grid supply. Demand and operating evidence from both pathways informs investment review."
+        description="This Part 7 integration model traces the proposed fuel and electricity pathways. Team findings will establish case-specific supply, site and operating requirements."
       >
         <EvidenceBadge type="STRATEGIC RECOMMENDATION" />
       </PageHeading>

@@ -979,3 +979,7 @@
     transition: none;
   }
 }
+
+.gateInputLinks { display: flex; flex-wrap: wrap; gap: .27rem .65rem; list-style: none; padding: 0; margin: .24rem 0 0; font-size: .79rem; }
+.gateInputLinks a { font-weight: 650; }
+.gateEconomics { display: flex; align-items: baseline; flex-wrap: wrap; gap: .25rem .6rem; padding-block: .3rem; color: var(--warm); font-size: .83rem; }

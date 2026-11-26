@@ -101,7 +101,7 @@ function DemandSignals({ events }: { events: readonly DemoEvent[] }) {
         <h2 id="demand-signals">Demo demand signals</h2>
       </div>
       <EvidenceBadge type="ILLUSTRATIVE OR MODELLED VALUE" />
-      <p>Simulated activity from Customer &amp; Fleet for this initiative.</p>
+      <p>Simulated activity from the proof of concept. No actual IP operational data.</p>
       {events.length === 0 ? (
         <p className={styles.emptyInset}>No simulated activity for this initiative in this session.</p>
       ) : (
@@ -126,8 +126,9 @@ function DemandSignals({ events }: { events: readonly DemoEvent[] }) {
   )
 }
 
-function NextEvidence({ demand, demandLabel, checks, nextAction }: {
+function NextEvidence({ demand, economics, demandLabel, checks, nextAction }: {
   demand: GateCheck | undefined
+  economics: GateCheck | undefined
   demandLabel: string
   checks: readonly GateCheck[]
   nextAction: string
@@ -144,6 +145,12 @@ function NextEvidence({ demand, demandLabel, checks, nextAction }: {
           {demand ? <DatumValue datum={demand.finding} /> : 'No data'}
         </dd>
       </dl>
+      {demand?.finding.value === null && (
+        <WorkstreamInputs compact requestIds={demand.finding.inputRequestIds} className={styles.gateInputLinks} />
+      )}
+      {economics?.finding.value === null && (
+        <div className={styles.gateEconomics}><strong>Economics · No data</strong><WorkstreamInputs compact requestIds={economics.finding.inputRequestIds} className={styles.gateInputLinks} /></div>
+      )}
       {checks.length > 0 ? (
         <ul className={styles.nextEvidenceList}>
           {checks.map((check) => (
@@ -250,6 +257,7 @@ export default function InvestmentGatePage() {
             <DemandSignals events={initiativeEvents} />
             <NextEvidence
               demand={demandCheck}
+              economics={gate.checks.find(({ id }) => id === 'economics')}
               demandLabel={initiative.id === 'road-hvo-pilot' ? 'Contracted demand' : 'Case demand readiness'}
               checks={nextChecks}
               nextAction={decision.nextAction}

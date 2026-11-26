@@ -1,14 +1,16 @@
 import { ArrowUpRight, ChevronDown, LayoutGrid, List, Search } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
-import { routes } from '../app/routes'
+import { routes, workstreamPath } from '../app/routes'
 import { DatumValue, EvidenceBadge, RecordSources } from '../components/evidence/Evidence'
 import { PageHeading } from '../components/layout/PageHeading'
 import styles from '../components/strategy/PortfolioRoadmap.module.css'
 import { StrategyRecordLinks } from '../components/strategy/StrategyRecordLinks'
 import { initiatives } from '../data/initiatives'
+import { gates } from '../data/gates'
 import { risks } from '../data/risks'
 import { technologies } from '../data/technologies'
-import type { AssessmentDimension, Horizon, PortfolioPriority, TechnologyOption } from '../models/strategy'
+import { workstreams } from '../data/workstreams'
+import type { AssessmentDimension, Horizon, PortfolioPriority, TechnologyOption, WorkstreamId } from '../models/strategy'
 
 const priorities: readonly PortfolioPriority[] = ['Start now', 'Pilot', 'Monitor', 'Defer', 'Exclude']
 const horizons: readonly Horizon[] = ['0–3 years', '3–7 years', '7–15+ years']
@@ -28,6 +30,60 @@ function PriorityChip({ priority }: { priority: PortfolioPriority }) {
   return <span className={styles.priorityChip} data-priority={priority}>{priority}</span>
 }
 
+function teamContext(technology: TechnologyOption, workstreamIds: readonly WorkstreamId[]) {
+  return workstreams.filter((stream) => workstreamIds.includes(stream.workstreamId)).map((stream) => {
+    const topics = stream.topics.filter((topic) => topic.affectedRecords.some((record) => (
+      record.kind === 'technology' && record.id === technology.id
+    )))
+    return { stream, topics: stream.validated ? topics : [], relevant: topics.length > 0 }
+  })
+}
+
+function PortfolioInputs({ technology }: { technology: TechnologyOption }) {
+  const contributors = teamContext(technology, [3, 5]).filter((item) => item.relevant)
+  const economics = teamContext(technology, [6])[0]
+  const integration = teamContext(technology, [7])[0]
+  const caseEconomics = economics?.topics.find((topic) => topic.finding)
+  const readyTiming = caseEconomics && contributors.every(({ topics }) => topics.some((topic) => topic.finding || topic.timing))
+    ? integration?.topics.find((topic) => topic.timing)?.timing
+    : undefined
+  const participants = [...contributors.map(({ stream }) => `W${stream.workstreamId}`), 'W6', 'W7'].join(' + ')
+  return (
+    <dl className={styles.teamAssessment}>
+      <div>
+        <dt>Team recommendation</dt>
+        <dd>{contributors.map(({ stream, topics }) => {
+          const findings = topics.filter((topic) => topic.finding || topic.priority || topic.rationale)
+          return <p key={stream.id}><Link to={workstreamPath(stream.workstreamId)}>W{stream.workstreamId}</Link> · {findings.length ? findings.map((topic) => topic.finding ?? topic.priority ?? topic.rationale).join(' / ') : 'No data · awaiting validated input'}</p>
+        })}</dd>
+      </div>
+      <div>
+        <dt>Investment economics</dt>
+        <dd><Link to={workstreamPath(6)}>W6</Link> · {caseEconomics?.finding ?? 'No data'}</dd>
+      </div>
+      <div>
+        <dt>Integrated timing</dt>
+        <dd>{readyTiming ?? `No data · pending ${participants}`} <Link to={workstreamPath(7)} aria-label="Review Workstream 7 integration">↗</Link></dd>
+      </div>
+    </dl>
+  )
+}
+
+function IndustryContext({ technology }: { technology: TechnologyOption }) {
+  const documented = gates.flatMap((gate) => technology.initiativeIds.includes(gate.initiativeId) ? gate.checks : [])
+    .find((check) => check.id === 'technologyMaturity' && check.finding.evidenceType === 'VERIFIED FACT')
+  return (
+    <div className={styles.industryContext}>
+      <strong>Market / technical context</strong>
+      {documented?.finding.evidenceType === 'VERIFIED FACT' ? (
+        <><EvidenceBadge type="VERIFIED FACT" /><p>{documented.rationale}</p><RecordSources record={{ source: [], evidenceIds: documented.finding.evidenceIds }} /></>
+      ) : (
+        <p>Verified industry maturity · No data. See the disclosed Part 7 assessment and its source references.</p>
+      )}
+    </div>
+  )
+}
+
 function TechnologyCard({ technology }: { technology: TechnologyOption }) {
   const relatedInitiatives = initiatives.filter(({ id }) => technology.initiativeIds.includes(id))
   const relatedRisks = risks.filter(({ id }) => technology.riskIds.includes(id))
@@ -37,43 +93,13 @@ function TechnologyCard({ technology }: { technology: TechnologyOption }) {
     <article className={`panel ${styles.technologyCard}`} data-priority={technology.status} aria-labelledby={`${technology.id}-title`}>
       <header className={styles.technologyIntro}>
         <div className={styles.cardHeader}>
-          <PriorityChip priority={technology.status} />
-          <EvidenceBadge type={technology.evidenceType} />
+          <span className="tag">Assessment area</span>
         </div>
         <h2 id={`${technology.id}-title`}>{technology.title}</h2>
       </header>
-      <dl className={styles.metricGrid}>
-        <div>
-          <dt>IP readiness</dt>
-          <dd><DatumValue datum={technology.ipReadiness} /></dd>
-        </div>
-        <div>
-          <dt>Proposed horizon</dt>
-          <dd>{technology.timeHorizon ?? 'No data'}</dd>
-        </div>
-        <div>
-          <dt>Indicative investment intensity</dt>
-          <dd><DatumValue datum={technology.investmentIntensity} /></dd>
-        </div>
-      </dl>
-      <dl className={styles.technologySignals}>
-        <div>
-          <dt>Industry maturity</dt>
-          <dd><DatumValue datum={technology.industryMaturity} /></dd>
-        </div>
-        <div>
-          <dt>Demand driver</dt>
-          <dd>
-            {relatedInitiatives.length > 0 ? relatedInitiatives.map((initiative) => (
-              <p key={initiative.id}>{initiative.demandDriver}</p>
-            )) : 'No data'}
-          </dd>
-          <dd className={styles.demandVisibility}>
-            Demand visibility · {demandVisibility ? <DatumValue datum={demandVisibility} /> : 'No data'}
-          </dd>
-        </div>
-      </dl>
-      <p className={styles.rationale}><strong>Next action</strong> {technology.rationale}</p>
+      <IndustryContext technology={technology} />
+      <PortfolioInputs technology={technology} />
+      <p className={styles.rationale}><strong>IP deployment readiness</strong> <DatumValue datum={technology.ipReadiness} /></p>
       <div className={styles.cardAction}>
         {relatedInitiatives.map((initiative) => (
           <Link
@@ -88,13 +114,22 @@ function TechnologyCard({ technology }: { technology: TechnologyOption }) {
         ))}
       </div>
       <details className={styles.assessment}>
-        <summary aria-label="Assessment and evidence" aria-describedby={technology.dependencies.length ? `${technology.id}-dependency-count` : undefined}>
-          <span>Assessment and evidence</span>
+        <summary aria-label="Part 7 draft assessment and evidence" aria-describedby={technology.dependencies.length ? `${technology.id}-dependency-count` : undefined}>
+          <span>Part 7 draft assessment and evidence</span>
           <span className={styles.assessmentMeta}>
             {technology.dependencies.length > 0 && <span id={`${technology.id}-dependency-count`}>{technology.dependencies.length} dependencies</span>}
             <ChevronDown size={17} aria-hidden="true" />
           </span>
         </summary>
+        <div className={styles.cardHeader}><PriorityChip priority={technology.status} /><EvidenceBadge type={technology.evidenceType} /></div>
+        <dl className={styles.detailGrid}>
+          <div><dt>Draft horizon</dt><dd>{technology.timeHorizon ?? 'No data'}</dd></div>
+          <div><dt>Indicative intensity</dt><dd><DatumValue datum={technology.investmentIntensity} /></dd></div>
+          <div><dt>Draft industry assessment</dt><dd><DatumValue datum={technology.industryMaturity} /></dd></div>
+          <div><dt>Demand driver</dt><dd>{relatedInitiatives.map((initiative) => <p key={initiative.id}>{initiative.demandDriver}</p>)}</dd></div>
+          <div><dt>Demand visibility</dt><dd>{demandVisibility ? <DatumValue datum={demandVisibility} /> : 'No data'}</dd></div>
+          <div><dt>Proposed next action</dt><dd>{technology.rationale}</dd></div>
+        </dl>
         <p className={styles.assessmentDescription}>{technology.description}</p>
         <dl className={styles.cardContext}>
           <div>
@@ -145,16 +180,16 @@ function PortfolioComparison({ options }: { options: readonly TechnologyOption[]
   return (
     <div className={styles.comparison} tabIndex={0} role="region" aria-label="Technology comparison table">
       <table>
-        <caption className="sr-only">Compare the filtered technology options</caption>
+        <caption className="sr-only">Compare filtered options and Part 7 draft assessments</caption>
         <thead>
           <tr>
             <th scope="col">Technology</th>
-            <th scope="col">Priority</th>
-            <th scope="col">Proposed horizon</th>
-            <th scope="col">Investment intensity</th>
-            <th scope="col">Industry maturity</th>
+            <th scope="col">Part 7 draft priority</th>
+            <th scope="col">Part 7 draft horizon</th>
+            <th scope="col">Part 7 indicative intensity</th>
+            <th scope="col">Market / technical context</th>
             <th scope="col">IP readiness</th>
-            <th scope="col">Demand driver</th>
+            <th scope="col">Validated team inputs</th>
             <th scope="col">Dependencies and risk</th>
             <th scope="col">Investment gate</th>
           </tr>
@@ -172,13 +207,9 @@ function PortfolioComparison({ options }: { options: readonly TechnologyOption[]
                 <td><PriorityChip priority={technology.status} /></td>
                 <td>{technology.timeHorizon ?? 'No data'}</td>
                 <td><DatumValue datum={technology.investmentIntensity} /></td>
-                <td><DatumValue datum={technology.industryMaturity} /></td>
+                <td><IndustryContext technology={technology} /></td>
                 <td><DatumValue datum={technology.ipReadiness} /></td>
-                <td>
-                  {relatedInitiatives.length > 0 ? relatedInitiatives.map((initiative) => (
-                    <p key={initiative.id}>{initiative.demandDriver}</p>
-                  )) : 'No data'}
-                </td>
+                <td><PortfolioInputs technology={technology} /></td>
                 <td>
                   <p>
                     <span className="muted">Implementation risk · </span>
@@ -247,7 +278,7 @@ export default function TechnologyPortfolioPage() {
       <PageHeading
         eyebrow="Strategy control"
         title="Technology Portfolio"
-        description="Compare proposed priorities with industry maturity, IP readiness and the conditions for investment."
+        description="Compare assessment areas, published technical context and validated team inputs. Draft filters refer to the Part 7 framework."
       >
         <Link className="button button-secondary" to={`${routes.evidence}?tab=evidence`}>
           Open evidence register <ArrowUpRight size={16} aria-hidden="true" />
@@ -268,21 +299,21 @@ export default function TechnologyPortfolioPage() {
           </span>
         </label>
         <label className={styles.field}>
-          Priority
+          Draft priority
           <select value={priority} onChange={(event) => updateFilter('priority', event.target.value)}>
             <option value="">All priorities</option>
             {priorities.map((option) => <option key={option}>{option}</option>)}
           </select>
         </label>
         <label className={styles.field}>
-          Horizon
+          Draft horizon
           <select value={horizon} onChange={(event) => updateFilter('horizon', event.target.value)}>
             <option value="">All horizons</option>
             {horizons.map((option) => <option key={option}>{option}</option>)}
           </select>
         </label>
         <label className={styles.field}>
-          Investment intensity
+          Draft investment intensity
           <select value={investment} onChange={(event) => updateFilter('investment', event.target.value)}>
             <option value="">All levels</option>
             {investmentOptions.map((option) => <option key={option}>{option}</option>)}

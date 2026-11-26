@@ -29,8 +29,10 @@ export default function JourneyPage() {
   if (!service) {
     return (
       <div className={`page ${styles.mobilityPage}`}>
-        <PageHeading eyebrow="Customer & fleet" title="Customer and Fleet Journey" />
+        <PageHeading eyebrow="Customer & Fleet Proof of Concept" title="Customer and Fleet Journey" />
         <section className={styles.empty}>
+          <p className={styles.locationKind}>ILLUSTRATIVE SCENARIO</p>
+          <span className={styles.scopeDisclaimer}>NOT ACTUAL IP OPERATIONAL DATA</span>
           <h2>Service unavailable in this demo catalogue</h2>
           <p>Choose a service from the fictional station catalogue.</p>
           <Link className="button" to="/mobility/explore">Open Explorer</Link>
@@ -84,9 +86,9 @@ export default function JourneyPage() {
   return (
     <div className={`page ${styles.mobilityPage} ${styles.journeyPage}`}>
       <PageHeading
-        eyebrow="Customer & Fleet"
+        eyebrow="Customer & Fleet Proof of Concept"
         title="Customer and Fleet Journey"
-        description="Simulate a fleet request or charging session, then inspect the signal in Strategy Control."
+        description="Simulate a fleet request or charging session and follow the resulting demand signal back to Strategy Control."
       />
 
       <div className={`${styles.journeyLead} ${tone}`}>
@@ -97,7 +99,10 @@ export default function JourneyPage() {
           {station && <p className={styles.journeyLocation}>{station.title}</p>}
           <p>{journey?.useCase ?? service.description}</p>
         </div>
-        <ServiceStatusChip status={service.status} />
+        <div className={styles.journeyScope}>
+          <ServiceStatusChip status={service.status} />
+          <span className={styles.scopeDisclaimer}>NOT ACTUAL IP OPERATIONAL DATA</span>
+        </div>
       </div>
 
       {journey && (
@@ -135,7 +140,7 @@ export default function JourneyPage() {
                 ILLUSTRATIVE DEMAND SIGNAL CREATED
               </span>
               <strong>{stageMessage}</strong>
-              <p>Inspect the request and the evidence the initiative still needs.</p>
+              <p>See how Strategy Control receives the signal and which evidence the initiative still needs.</p>
             </div>
             <Link className="button" to={initiativeLink}>View strategic impact</Link>
           </>

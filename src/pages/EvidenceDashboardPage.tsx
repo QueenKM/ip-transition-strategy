@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ClipboardList, Database, FileCheck, LibraryBig, Search } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
+import { routes, workstreamPath } from '../app/routes'
 import { DatumValue, EvidenceBadge, RecordSources } from '../components/evidence/Evidence'
 import { WorkstreamInputs } from '../components/evidence/WorkstreamInputs'
 import { PageHeading } from '../components/layout/PageHeading'
@@ -125,7 +126,7 @@ function TeamCard({ item, onNavigate }: { item: TeamContribution; onNavigate: ()
         </div>
         <EvidenceBadge type={item.evidenceType} />
       </div>
-      {!openRequests.some((request) => request.requirement === item.description) && <p>{item.description}</p>}
+      <p>{item.summary}</p>
       {openRequests.length > 0 && (
         <div className={styles.openInput}>
           <strong>[INPUT REQUIRED FROM WORKSTREAM {item.workstream}]</strong>
@@ -137,9 +138,11 @@ function TeamCard({ item, onNavigate }: { item: TeamContribution; onNavigate: ()
       <dl className={styles.factList}>
         <div><dt>Owner</dt><dd>{item.owner ?? '[OWNER TBD]'}</dd></div>
         <div><dt>Input received</dt><dd>{item.inputReceived ? 'Yes' : 'No'}</dd></div>
+        <div><dt>Last validated</dt><dd>{item.lastValidated ?? 'No data'}</dd></div>
         <div><dt>Date received</dt><dd>{item.dateReceived ?? 'No data'}</dd></div>
         <div><dt>Status</dt><dd>{item.status}</dd></div>
       </dl>
+      <Link to={workstreamPath(item.workstreamId)}>Open Workstream {item.workstreamId}</Link>
       {receivedRequests.length > 0 && <details className={styles.disclosure}>
         <summary>Submitted inputs</summary>
         <dl className={styles.factList}>
@@ -204,8 +207,10 @@ export default function EvidenceDashboardPage() {
       <PageHeading
         eyebrow="Strategy control"
         title="KPI and Evidence Dashboard"
-        description="Check what each metric measures, where it came from and what evidence is still needed."
-      />
+        description="Review measurement boundaries, public verified context and the validated team inputs each decision requires."
+      >
+        <Link className="button-secondary" to={routes.workstreams}>Team input readiness</Link>
+      </PageHeading>
 
       <nav className={styles.tabs} aria-label="Evidence dashboards">
         {tabs.map(({ id, title, icon: Icon }) => (

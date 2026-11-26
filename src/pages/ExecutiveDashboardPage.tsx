@@ -4,8 +4,7 @@ import {
   Route, ScrollText, Users, Waypoints,
 } from 'lucide-react'
 import { Link } from 'react-router'
-import { routes } from '../app/routes'
-import energyImage from '../assets/energy-intelligence.webp'
+import { routes, workstreamPath } from '../app/routes'
 import { EvidenceBadge, RecordSources } from '../components/evidence/Evidence'
 import { StrategyRecordLinks } from '../components/strategy/StrategyRecordLinks'
 import styles from '../components/strategy/StrategyStory.module.css'
@@ -13,6 +12,7 @@ import { gates } from '../data/gates'
 import { kpis } from '../data/kpis'
 import { project } from '../data/project'
 import { pillars } from '../data/strategy'
+import { workstreams } from '../data/workstreams'
 
 const pathway = [
   { label: 'Regulation & demand', Icon: ScrollText },
@@ -39,6 +39,7 @@ export default function ExecutiveDashboardPage() {
   const proposedKpis = kpis.filter((kpi) => kpi.status === 'Proposed definition')
   const verifiedBaselines = proposedKpis.filter((kpi) => kpi.baseline.evidenceType === 'VERIFIED FACT')
   const documentedApprovals = gates.filter((gate) => gate.approval.evidenceType === 'VERIFIED FACT')
+  const pending = workstreams.filter((item) => !item.frameworkAvailable && !item.validated)
 
   function clearPillar() {
     setSelected(null)
@@ -53,26 +54,35 @@ export default function ExecutiveDashboardPage() {
 
   return (
     <div className={`page ${styles.story} ${styles.dashboard}`}>
-      <section className={styles.hero} aria-labelledby="executive-heading">
-        <img src={energyImage} className={styles.heroArt} alt="" fetchPriority="high" />
+      <section className={`${styles.hero} ${styles.integrationHero}`} aria-labelledby="executive-heading">
         <div className={styles.heroContent}>
-          <p className={styles.heroMeta}>Part 7 · Academic strategy prototype</p>
+          <p className={styles.heroMeta}>Workstream 7 · Integration framework</p>
           <h1 id="executive-heading" className={styles.heroTitle} tabIndex={-1}>
-            Energy Transition <span>Intelligence</span>
+            Integrated Strategy
           </h1>
-          <p className={styles.heroSubtitle}>From refinery transformation to multi-energy mobility and evidence-led investment.</p>
+          <p className={styles.heroSubtitle}>The proposed Part 7 framework connects refining, distribution and customer services to evidence-led investment review.</p>
           <div className={styles.heroLinks}>
             <Link className="button" to={routes.valueChain}>
               Explore the value chain <ArrowRight size={17} aria-hidden="true" />
             </Link>
             <Link className="button button-secondary" to={routes.roadmap}>View the roadmap</Link>
             <details className={styles.heroDisclosure}>
-              <summary>Read the strategic thesis</summary>
+              <summary>Read the Part 7 strategic thesis</summary>
+              <EvidenceBadge type="STRATEGIC RECOMMENDATION" />
               <p>{project.thesis}</p>
             </details>
           </div>
         </div>
-        <p className={styles.heroCaption}>Illustrative scene</p>
+        <div className={styles.integrationStatus}>
+          <EvidenceBadge type="STRATEGIC RECOMMENDATION" />
+          <h2>Inputs that shape the group decision</h2>
+          {pending.length ? (
+            <ul aria-label="Workstreams with pending validated inputs">
+              {pending.map((item) => <li key={item.id}><Link to={workstreamPath(item.workstream)} title={item.title}>W{item.workstream}<span className="sr-only"> {item.title}</span></Link></li>)}
+            </ul>
+          ) : <p>No pending workstream submissions.</p>}
+          <Link to={routes.workstreams}>Review team input readiness</Link>
+        </div>
       </section>
 
       <section className={`${styles.section} ${styles.chainPanel} panel`} aria-labelledby="pathway-heading">
@@ -91,7 +101,7 @@ export default function ExecutiveDashboardPage() {
         </ol>
         <p className={styles.feedback}>
           <ArrowDownRight size={17} aria-hidden="true" />
-          <span>Supply, service and demand evidence informs IP’s next review of refinery allocation and station investment.</span>
+          <span>Supply, service and demand evidence would inform the next review of refinery allocation and station investment.</span>
         </p>
       </section>
 
@@ -111,7 +121,7 @@ export default function ExecutiveDashboardPage() {
         }}
       >
         <div className={styles.sectionHeader}>
-          <h2 id="pillars-heading">Strategic pillars</h2>
+          <h2 id="pillars-heading">Proposed strategic pillars</h2>
           <Link to={routes.portfolio} className={styles.textLink}>
             Review the portfolio <ArrowRight size={16} aria-hidden="true" />
           </Link>

@@ -22,6 +22,7 @@ const assistance = [
   { title: 'Evidence synthesis', Icon: BookOpen },
   { title: 'Scenario comparison', Icon: GitCompare },
   { title: 'Evidence gap detection', Icon: CircleHelp },
+  { title: 'Portfolio comparison', Icon: Layers3 },
 ]
 
 export default function AboutPage() {
@@ -54,7 +55,7 @@ export default function AboutPage() {
               <span className={styles.iconTile}><BrainCircuit size={19} aria-hidden="true" /></span>
               <span className={styles.status} data-status="Future">Conceptual · Decision support</span>
             </div>
-            <h2 id="decision-support-heading">AI-assisted strategy layer</h2>
+            <h2 id="decision-support-heading">Conceptual AI-assisted decision support</h2>
             <p>Potential support for an investment reviewer. The current prototype uses transparent rules.</p>
             <ul className={styles.assistanceList}>
               {assistance.map(({ title, Icon }) => (

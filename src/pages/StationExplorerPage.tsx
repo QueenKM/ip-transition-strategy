@@ -49,15 +49,16 @@ export default function StationExplorerPage() {
     <div className={`page ${styles.mobilityPage}`}>
       <div className={styles.pageLead}>
         <PageHeading
-          eyebrow="Customer & Fleet"
+          eyebrow="Customer & Fleet Proof of Concept"
           title="Station and Energy Services Explorer"
-          description="Compare service concepts for a corridor stop, a fleet depot and a neighbourhood site."
+          description="Explore how the strategy could translate into customer and fleet services at different station types."
         />
         <section className={styles.scenarioBar} aria-label="Catalogue scope">
           <Route size={24} aria-hidden="true" />
           <div>
             <strong>ILLUSTRATIVE SCENARIO</strong>
-            <p>Availability, prices and vehicle profiles apply to these fictional locations.</p>
+            <span className={styles.scopeDisclaimer}>NOT ACTUAL IP OPERATIONAL DATA</span>
+            <p>Fictional locations, availability, prices and vehicle profiles.</p>
           </div>
         </section>
       </div>

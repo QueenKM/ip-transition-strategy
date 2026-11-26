@@ -156,5 +156,36 @@ export function validateData(): string[] {
     issues.push('The Team Input Register must contain all eight distinct workstreams.')
   }
 
+  for (const team of teamContributions) {
+    unique(`${team.id} topics`, team.topics)
+    unique(`${team.id} metrics`, team.metrics)
+    if (team.validated && (!team.inputReceived || !team.dateReceived || !team.lastValidated || !team.lastUpdated || !team.sources.length)) {
+      issues.push(`${team.id} needs a dated, sourced submission before validation.`)
+    }
+    if (team.dateReceived && team.lastValidated && team.lastValidated < team.dateReceived) {
+      issues.push(`${team.id} validation predates receipt.`)
+    }
+    references(`${team.id} team sources`, team.sources.map(({ sourceId }) => sourceId), sourceIds)
+    references(team.id, team.affectedInitiatives, initiativeIds)
+    references(team.id, team.affectedTechnologies, technologyIds)
+    references(team.id, team.affectedKPIs, kpiIds)
+    references(team.id, team.affectedRoadmapPhases, new Set(roadmap.map(({ id }) => id)))
+    for (const topic of team.topics) {
+      const label = `${team.id} ${topic.id}`
+      references(label, topic.evidenceIds, evidenceIds)
+      references(label, topic.findingEvidenceIds, evidenceIds)
+      references(label, topic.inputRequestIds, requestIds)
+      const delivered = Boolean(topic.finding || topic.priority || topic.timing || topic.rationale)
+      if (delivered && !team.inputReceived) issues.push(`${label} has a finding without a submitted contribution.`)
+      if (delivered && team.validated && !topic.findingEvidenceIds.length) {
+        issues.push(`${label} needs evidence references for its validated finding.`)
+      }
+    }
+    for (const metric of team.metrics) {
+      datum(`${team.id} ${metric.id}`, metric.value)
+      if (metric.value.value !== null && !team.inputReceived) issues.push(`${team.id} has a metric without a submitted contribution.`)
+    }
+  }
+
   return issues
 }

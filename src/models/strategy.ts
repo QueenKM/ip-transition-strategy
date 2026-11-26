@@ -216,13 +216,51 @@ export interface TeamInputRequest {
   status: 'Missing' | 'Received' | 'Validated'
 }
 
-export interface TeamContribution extends RecordMeta<'Awaiting submission' | 'Received' | 'Reviewed'> {
+export interface WorkstreamTopic {
+  id: Id
+  title: string
+  description: string
+  publicContext: string | null
+  evidenceIds: readonly Id[]
+  findingEvidenceIds: readonly Id[]
+  finding: string | null
+  priority: string | null
+  timing: string | null
+  rationale: string | null
+  inputRequestIds: readonly Id[]
+  affectedRecords: readonly EntityRef[]
+}
+
+export interface WorkstreamMetric {
+  id: Id
+  title: string
+  description: string
+  unit: string | null
+  value: Datum<string | number>
+}
+
+export interface TeamContribution extends RecordMeta<'Awaiting submission' | 'In development' | 'Received' | 'Reviewed'> {
   workstream: WorkstreamId
+  workstreamId: WorkstreamId
   inputReceived: boolean
   dateReceived: DateStamp | null
+  validated: boolean
+  lastValidated: DateStamp | null
+  frameworkAvailable: boolean
+  summary: string
+  keyFindings: readonly string[]
+  recommendations: readonly string[]
+  sources: readonly SourceRef[]
+  missingData: readonly string[]
+  affectedInitiatives: readonly Id[]
+  affectedTechnologies: readonly Id[]
+  affectedKPIs: readonly Id[]
+  affectedRoadmapPhases: readonly Id[]
   affectedRoutes: readonly string[]
   unresolvedQuestions: readonly string[]
   requests: readonly TeamInputRequest[]
+  topics: readonly WorkstreamTopic[]
+  metrics: readonly WorkstreamMetric[]
 }
 
 export interface ArchitectureNode extends RecordMeta<'Documented' | 'Required' | 'Future'> {

@@ -73,7 +73,7 @@ const layers: readonly LandscapeLayer[] = [
     icon: ClipboardCheck,
     items: [
       { title: 'Management dashboard', description: 'Review portfolio risks, KPI boundaries and evidence at the decision gate.' },
-      { title: 'AI-assisted strategy layer', description: 'Conceptual evidence synthesis, scenario comparison and gap detection.', tone: 'conceptual' },
+      { title: 'Conceptual AI-assisted decision support', description: 'Evidence synthesis, scenario and portfolio comparison, and evidence gap detection. Human-governed.', tone: 'conceptual' },
     ],
   },
   {

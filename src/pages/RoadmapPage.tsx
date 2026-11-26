@@ -1,4 +1,4 @@
-import { ArrowUpRight, ChevronDown, Factory, Fuel, GitMerge, LaptopMinimal, ListChecks } from 'lucide-react'
+import { ArrowUpRight, ChevronDown, Factory, Fuel, GitMerge, LaptopMinimal, ListChecks, Wallet } from 'lucide-react'
 import { Fragment } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { routes } from '../app/routes'
@@ -9,7 +9,8 @@ import { StrategyRecordLinks } from '../components/strategy/StrategyRecordLinks'
 import { gates } from '../data/gates'
 import { initiatives } from '../data/initiatives'
 import { roadmap } from '../data/roadmap'
-import type { Horizon } from '../models/strategy'
+import { teamContributions } from '../data/team'
+import type { Horizon, WorkstreamId } from '../models/strategy'
 import { describeEntity } from '../utils/selectRecords'
 
 const horizonNames: Record<Horizon, string> = {
@@ -19,9 +20,9 @@ const horizonNames: Record<Horizon, string> = {
 }
 
 const lanes = [
-  { id: 'refining', title: 'Refining', Icon: Factory },
-  { id: 'distribution', title: 'Distribution', Icon: Fuel },
-  { id: 'digital', title: 'Digital platform', Icon: LaptopMinimal },
+  { id: 'refining', title: 'Refining', Icon: Factory, workstream: 3 },
+  { id: 'distribution', title: 'Distribution', Icon: Fuel, workstream: 5 },
+  { id: 'digital', title: 'Digital platform', Icon: LaptopMinimal, workstream: 7 },
 ] as const
 
 const phaseSummaries: Record<Horizon, { refining: string; distribution: string; digital: string; handoff?: string }> = {
@@ -80,6 +81,41 @@ function PhaseGateLinks({ ids }: { ids: readonly string[] }) {
   )
 }
 
+function RoadmapWorkstream({ workstream, phaseId }: { workstream: WorkstreamId; phaseId: string }) {
+  const contribution = teamContributions.find((record) => record.workstream === workstream)
+  const topics = contribution?.validated ? contribution.topics.filter((topic) => (
+    topic.affectedRecords.some(({ kind, id }) => kind === 'phase' && id === phaseId)
+    && Boolean(topic.finding || topic.priority || topic.timing || topic.rationale)
+  )) : []
+  const teamRecord = describeEntity({ kind: 'team', id: `workstream-${workstream}` })
+
+  return (
+    <div className={styles.laneSummary}>
+      {topics.length ? (
+        <div className={styles.validatedInputs}>
+          <EvidenceBadge type="TEAM INPUT" />
+          {topics.map((topic) => (
+            <div key={topic.id}>
+              <p><strong>{topic.title}</strong></p>
+              {topic.finding && <p>{topic.finding}</p>}
+              {topic.priority && <p>Priority · {topic.priority}</p>}
+              {topic.timing && <p>Timing · {topic.timing}</p>}
+              {topic.rationale && <p>{topic.rationale}</p>}
+              <RecordSources record={{ source: [], evidenceIds: topic.findingEvidenceIds }} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
+          <p><strong>No data</strong> · {contribution?.inputReceived && !contribution.validated ? 'Submission awaiting validation' : 'No validated recommendation for this horizon'}</p>
+          <p className={styles.workstreamRequest}>[INPUT REQUIRED FROM WORKSTREAM {workstream}]</p>
+        </>
+      )}
+      {teamRecord.href && <Link to={teamRecord.href}>Workstream {workstream} inputs</Link>}
+    </div>
+  )
+}
+
 export default function RoadmapPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const phase = roadmap.find(({ id }) => id === searchParams.get('phase')) ?? roadmap[0]
@@ -89,7 +125,7 @@ export default function RoadmapPage() {
       <PageHeading
         eyebrow="Strategy control"
         title="Integrated Roadmap"
-        description="The horizons run from strategy launch. Progress depends on evidence and a human decision at each gate."
+        description="The horizons organise the Part 7 draft from strategy launch. Refining, distribution and investment commitments depend on validated team inputs and human decisions."
       >
         <Link className="button button-secondary" to={routes.evidence}>
           Review KPIs and evidence <ArrowUpRight size={16} aria-hidden="true" />
@@ -136,7 +172,7 @@ export default function RoadmapPage() {
               <div className={styles.phaseTitleRow}>
                 <h2 id="roadmap-phase-title">{phase.title}</h2>
                 <div className={styles.cardHeader}>
-                  <span className="tag">{phase.status}</span>
+                  <span className="tag">Part 7 draft framework</span>
                   <EvidenceBadge type={phase.evidenceType} />
                 </div>
               </div>
@@ -144,17 +180,22 @@ export default function RoadmapPage() {
             </header>
 
             <div className={styles.lanes}>
-              {lanes.map(({ id, title, Icon }) => (
+              {lanes.map(({ id, title, Icon, workstream }) => (
                 <section className={styles.lane} data-lane={id} key={id} aria-labelledby={`roadmap-lane-${id}`}>
                   <div className={styles.laneHeading}>
                     <span className={styles.laneIcon}><Icon size={20} aria-hidden="true" /></span>
                     <h3 id={`roadmap-lane-${id}`}>{title}</h3>
                   </div>
-                  <p className={styles.laneSummary}>{phaseSummaries[phase.timeHorizon][id]}</p>
+                  {id === 'digital' ? (
+                    <div className={styles.laneSummary}>
+                      <p><strong>Part 7 draft</strong> · {phaseSummaries[phase.timeHorizon].digital}</p>
+                      <RoadmapWorkstream workstream={workstream} phaseId={phase.id} />
+                    </div>
+                  ) : <RoadmapWorkstream workstream={workstream} phaseId={phase.id} />}
                   {phase.actions[id].length ? (
                     <details className={styles.laneDetails} key={`${phase.id}-${id}`}>
                       <summary>
-                        <span>{phase.actions[id].length} actions<span className="sr-only"> for {title}</span></span>
+                        <span>Part 7 hypotheses<span className="sr-only"> for {title}</span></span>
                         <ChevronDown size={16} aria-hidden="true" />
                       </summary>
                       <ul className={styles.actions}>
@@ -177,15 +218,22 @@ export default function RoadmapPage() {
                   ) : <span className="muted">No data</span>}
                 </section>
               ))}
+              <section className={styles.lane} data-lane="economics" aria-labelledby="roadmap-economics">
+                <div className={styles.laneHeading}>
+                  <span className={styles.laneIcon}><Wallet size={20} aria-hidden="true" /></span>
+                  <h3 id="roadmap-economics">Economics and risks</h3>
+                </div>
+                <RoadmapWorkstream workstream={6} phaseId={phase.id} />
+              </section>
               <section className={`${styles.lane} ${styles.gateLane}`} data-lane="gates" aria-labelledby="roadmap-gates">
                 <div className={styles.laneHeading}>
                   <span className={styles.laneIcon}><GitMerge size={20} aria-hidden="true" /></span>
                   <h3 id="roadmap-gates">Investment gates</h3>
                 </div>
-                <p className={styles.laneSummary}>{phase.reviewTriggers[0] ?? 'No data'}</p>
+                <p className={styles.laneSummary}><strong>Part 7 draft rule</strong> · {phase.reviewTriggers[0] ?? 'No data'}</p>
                 <details className={styles.laneDetails} key={phase.id}>
                   <summary>
-                    <span>{phase.gateIds.length} gate reviews</span>
+                    <span>Proposed gates</span>
                     <ChevronDown size={16} aria-hidden="true" />
                   </summary>
                   <div className={styles.gateContent}>
@@ -199,14 +247,14 @@ export default function RoadmapPage() {
 
           <div className={styles.phaseDetails}>
             <section className={`panel ${styles.phaseDetail}`} aria-labelledby="roadmap-pilots">
-              <h3 id="roadmap-pilots">Pilots and dependencies</h3>
+              <h3 id="roadmap-pilots">Draft pilots and dependencies</h3>
               <h4>Pilot candidates</h4>
               <StrategyRecordLinks records={phase.pilotIds.map((id) => ({ kind: 'initiative', id }))} />
               <h4>Dependencies</h4>
               <StrategyRecordLinks records={phase.dependencies} />
             </section>
             <section className={`panel ${styles.phaseDetail}`} aria-labelledby="roadmap-scale">
-              <h3 id="roadmap-scale">Scale-up conditions</h3>
+              <h3 id="roadmap-scale">Draft scale-up conditions</h3>
               <RoadmapList items={phase.scaleConditions} />
             </section>
             <section className={`panel ${styles.phaseDetail} ${styles.phaseKpis}`} aria-labelledby="roadmap-kpis">
