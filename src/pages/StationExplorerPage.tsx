@@ -1,5 +1,5 @@
 import { useSearchParams, Link } from 'react-router'
-import { BatteryCharging, Filter, Fuel, MapPin, Route } from 'lucide-react'
+import { Atom, BatteryCharging, Boxes, Filter, Fuel, Leaf, Route, Store, Truck, Users } from 'lucide-react'
 import { DatumValue, EvidenceBadge, ServiceStatusChip } from '../components/evidence/Evidence'
 import { PageHeading } from '../components/layout/PageHeading'
 import { serviceCarriers, serviceStatuses, stationServices, stations } from '../data/services'
@@ -7,6 +7,17 @@ import type { StationService } from '../models/strategy'
 import styles from '../components/mobility/Mobility.module.css'
 
 const audienceOptions = ['Driver', 'Fleet'] as const
+const carrierVisuals = {
+  'Liquid fuel': { icon: Fuel, tone: styles.fuelTone },
+  Electricity: { icon: BatteryCharging, tone: styles.electricTone },
+  Hydrogen: { icon: Atom, tone: styles.hydrogenTone },
+  Biomethane: { icon: Leaf, tone: styles.bioTone },
+} satisfies Record<StationService['carrier'], { icon: typeof Fuel; tone: string }>
+const locationIcons: Partial<Record<string, typeof Route>> = {
+  'corridor-demo': Route,
+  'depot-demo': Boxes,
+  'neighbourhood-demo': Store,
+}
 
 function appliesToAudience(service: StationService, audience: string) {
   return !audience || service.audience === audience || service.audience === 'Both'
@@ -35,20 +46,21 @@ export default function StationExplorerPage() {
   }
 
   return (
-    <div className="page">
-      <PageHeading
-        eyebrow="Customer & fleet"
-        title="Station and Energy Services Explorer"
-        description="Compare service concepts for a corridor stop, a fleet depot and a neighbourhood site."
-      />
-
-      <section className={styles.scenarioBar} aria-label="Catalogue scope">
-        <Route size={23} aria-hidden="true" />
-        <div>
-          <strong>Illustrative scenario · Fictional locations</strong>
-          <p>Availability, prices and vehicle profiles apply to this academic demo.</p>
-        </div>
-      </section>
+    <div className={`page ${styles.mobilityPage}`}>
+      <div className={styles.pageLead}>
+        <PageHeading
+          eyebrow="Customer & Fleet"
+          title="Station and Energy Services Explorer"
+          description="Compare service concepts for a corridor stop, a fleet depot and a neighbourhood site."
+        />
+        <section className={styles.scenarioBar} aria-label="Catalogue scope">
+          <Route size={24} aria-hidden="true" />
+          <div>
+            <strong>ILLUSTRATIVE SCENARIO</strong>
+            <p>Availability, prices and vehicle profiles apply to these fictional locations.</p>
+          </div>
+        </section>
+      </div>
 
       <section className={styles.finder} aria-labelledby="filter-heading">
         <div className={styles.filterHeading}>
@@ -103,16 +115,18 @@ export default function StationExplorerPage() {
         {stations.map((station) => {
           const stationOffers = visible.filter((service) => service.stationId === station.id)
           if (stationOffers.length === 0) return null
+          const LocationIcon = locationIcons[station.id] ?? Store
 
           return (
             <section className={styles.location} key={station.id} aria-labelledby={station.id}>
               <div className={styles.locationHead}>
-                <MapPin size={20} aria-hidden="true" />
+                <span className={styles.locationIcon}><LocationIcon size={27} aria-hidden="true" /></span>
                 <div>
-                  <p className={styles.locationKind}>{station.archetype} · Fictional</p>
+                  <p className={styles.locationKind}>{station.archetype}</p>
                   <h2 id={station.id}>{station.title}</h2>
                   <p>{station.description}</p>
                 </div>
+                <span className={styles.fictionLabel}>FICTIONAL LOCATION</span>
               </div>
               <div className={styles.offerGrid}>
                 {stationOffers.map((service) => (
@@ -128,16 +142,20 @@ export default function StationExplorerPage() {
 }
 
 function ServiceCard({ service }: { service: StationService }) {
-  const CarrierIcon = service.carrier === 'Electricity' ? BatteryCharging : Fuel
+  const { icon: CarrierIcon, tone } = carrierVisuals[service.carrier]
+  const AudienceIcon = service.audience === 'Fleet' ? Truck : Users
   const useCase = service.audience === 'Both' ? 'Drivers and fleets' : service.audience
 
   return (
-    <article className={styles.offer}>
+    <article className={`${styles.offer} ${tone}`}>
       <div className={styles.offerTop}>
         <span className={styles.offerIcon}><CarrierIcon size={20} aria-hidden="true" /></span>
         <ServiceStatusChip status={service.status} />
       </div>
-      <p className={styles.offerCarrier}>{service.carrier} · {useCase}</p>
+      <div className={styles.offerMeta}>
+        <span className={styles.offerCarrier}>{service.carrier}</span>
+        <span><AudienceIcon size={15} aria-hidden="true" />{useCase}</span>
+      </div>
       <h3>{service.title}</h3>
       <p>{service.description}</p>
       <dl className={styles.offerFacts}>

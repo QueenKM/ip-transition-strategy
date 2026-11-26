@@ -1,8 +1,23 @@
-.filters {
+.portfolioPage:global(.stack),
+.roadmapPage:global(.stack) {
+  gap: clamp(1rem, 2.2vw, 1.55rem);
+  container-type: inline-size;
+}
+
+.portfolioPage { container-name: portfolio; }
+.roadmapPage { container-name: roadmap; }
+
+.portfolioPage :global(.page-heading),
+.roadmapPage :global(.page-heading) {
+  margin-bottom: 0;
+}
+
+.portfolioPage .filters {
   display: grid;
-  grid-template-columns: minmax(13rem, 1.5fr) repeat(3, minmax(8rem, 1fr));
-  gap: 1rem;
+  grid-template-columns: minmax(14rem, 1.65fr) repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
   align-items: end;
+  padding: 1rem;
 }
 
 .field {
@@ -17,27 +32,99 @@
 .field select {
   width: 100%;
   min-width: 0;
-  min-height: 2.75rem;
-  padding: 0.55rem 0.7rem;
+  min-height: 2.9rem;
   border: 1px solid var(--control-border);
   border-radius: 0.55rem;
-  background: var(--surface, #fff);
-  color: inherit;
+  background: var(--canvas);
+  color: var(--ink);
   font: inherit;
   font-weight: 500;
 }
 
-.resultBar {
+.field input::placeholder { color: var(--muted); }
+
+.searchField {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.searchField svg {
+  position: absolute;
+  inset-inline-start: 0.8rem;
+  top: 50%;
+  color: var(--electric, #42d9e8);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.filters .searchField input[type='search'] { padding-inline-start: 2.45rem; }
+
+.resultBar,
+.resultSummary {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  gap: 0.5rem 0.85rem;
+}
+
+.resultBar {
   justify-content: space-between;
-  gap: 0.75rem;
+  min-height: 2.9rem;
 }
 
 .resultBar p {
   margin: 0;
+  font-size: 0.89rem;
 }
+
+.clearButton {
+  min-height: 2.4rem;
+  padding: 0.25rem 0.45rem;
+  border: 0;
+  background: transparent;
+  color: var(--action);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-underline-offset: 0.18em;
+}
+
+.clearButton:hover { text-decoration: underline; }
+
+.viewSwitch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  padding: 0.22rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  background: var(--nav);
+}
+
+.viewSwitch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.4rem;
+  padding: 0.35rem 0.72rem;
+  border: 1px solid transparent;
+  border-radius: 0.48rem;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.83rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.viewSwitch button:hover { color: var(--ink); }
+
+.viewSwitch button[aria-pressed='true'] {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.viewSwitch button[aria-pressed='true'] svg { color: var(--action); }
 
 .portfolioGrid {
   display: grid;
@@ -46,23 +133,37 @@
   align-items: start;
 }
 
-.technologyCard {
+.portfolioPage .technologyCard {
+  position: relative;
   display: grid;
-  gap: 1rem;
   min-width: 0;
+  gap: 1rem;
+  padding: clamp(1rem, 2.2vw, 1.6rem);
+  border-top: 2px solid color-mix(in srgb, var(--priority, var(--action)) 66%, var(--line));
   overflow-wrap: anywhere;
 }
 
-.technologyCard h2,
+.technologyIntro {
+  display: grid;
+  gap: 0.62rem;
+}
+
+.technologyIntro h2,
 .phaseIntro h2,
 .lane h3,
 .phaseDetail h3 {
   margin: 0;
+  letter-spacing: -0.025em;
 }
 
-.technologyCard p,
-.phaseIntro p {
-  margin: 0;
+.technologyIntro h2 { font-size: clamp(1.25rem, 2.3vw, 1.68rem); }
+
+.technologyIntro p,
+.phaseIntro p { margin: 0; }
+
+.technologyIntro p {
+  color: var(--muted);
+  font-size: 0.93rem;
 }
 
 .cardHeader {
@@ -70,6 +171,38 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
+}
+
+:is(.technologyCard, .priorityChip)[data-priority='Start now'] { --priority: var(--action); }
+:is(.technologyCard, .priorityChip)[data-priority='Pilot'] { --priority: var(--electric, #42d9e8); }
+:is(.technologyCard, .priorityChip)[data-priority='Monitor'] { --priority: var(--warm, #f5c76a); }
+:is(.technologyCard, .priorityChip)[data-priority='Defer'] { --priority: var(--blocker-fg); }
+:is(.technologyCard, .priorityChip)[data-priority='Exclude'] { --priority: var(--muted); }
+
+.priorityChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  width: max-content;
+  max-width: 100%;
+  padding: 0.21rem 0.57rem;
+  border: 1px solid color-mix(in srgb, var(--priority) 34%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--priority) 9%, var(--surface));
+  color: var(--priority);
+  font-size: 0.79rem;
+  line-height: 1.25;
+  font-weight: 720;
+  white-space: nowrap;
+}
+
+.priorityChip::before {
+  flex: 0 0 0.35rem;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: currentColor;
+  content: '';
 }
 
 .metricGrid,
@@ -81,55 +214,83 @@
 }
 
 .metricGrid {
-  padding: 0.85rem;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  padding: 0.9rem;
+  border: 1px solid var(--line);
   border-radius: 0.6rem;
-  background: var(--canvas, #f0f5f0);
+  background: var(--canvas);
 }
+
+.metricGrid > div { min-width: 0; }
 
 .metricGrid dt,
 .detailGrid dt,
 .cardContext dt,
 .initiativeContext dt {
+  color: var(--muted);
   font-size: 0.79rem;
   font-weight: 650;
-  color: var(--muted, #48635e);
 }
 
 .metricGrid dd,
 .detailGrid dd,
 .cardContext dd,
 .initiativeContext dd {
-  margin: 0.2rem 0 0;
-  font-size: 0.9rem;
+  margin: 0.22rem 0 0;
+  font-size: 0.89rem;
+  line-height: 1.48;
+}
+
+.rationale {
+  margin: 0;
+  padding-inline-start: 0.8rem;
+  border-inline-start: 2px solid var(--priority, var(--action));
+  color: var(--ink);
+  font-size: 0.93rem;
 }
 
 .cardContext,
 .initiativeContext {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.72rem;
   margin: 0;
 }
 
 .initiativeContext {
-  margin-block: 0.85rem;
+  margin-block: 0.95rem;
   padding-block: 0.85rem;
   border-block: 1px solid var(--line);
 }
 
-.technologyCard details {
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--line, #d7e2dd);
+.assessment {
+  padding-top: 0.1rem;
+  border-top: 1px solid var(--line);
 }
 
-.technologyCard details summary {
-  min-height: 2rem;
+.assessment > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 2.85rem;
   cursor: pointer;
-  font-weight: 650;
+  list-style: none;
+  font-size: 0.92rem;
+  font-weight: 700;
 }
 
-.technologyCard details[open] summary {
-  margin-bottom: 0.8rem;
+.assessment > summary::-webkit-details-marker { display: none; }
+.assessment > summary::marker { content: ''; }
+.assessment > summary:hover { color: var(--action); }
+
+.assessment > summary svg {
+  flex: 0 0 auto;
+  color: var(--action);
+  transition: transform var(--transition);
 }
+
+.assessment[open] > summary { margin-bottom: 0.5rem; }
+.assessment[open] > summary svg { transform: rotate(180deg); }
 
 .cardAction {
   display: flex;
@@ -138,105 +299,302 @@
   align-items: center;
 }
 
-.cardAction :global(.button) {
-  width: fit-content;
+.cardAction :global(.button) { width: fit-content; }
+
+.comparison {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  scrollbar-color: var(--control-border) var(--canvas);
+}
+
+.comparison table { min-width: 55rem; }
+.comparison thead th { background: var(--nav); }
+.comparison tbody th { min-width: 12rem; }
+.comparison tbody td:nth-child(5) { min-width: 14rem; }
+.comparison tbody td:nth-child(6) { min-width: 6.1rem; }
+.comparison tbody tr:last-child > * { border-bottom: 0; }
+
+.comparison tbody th > span {
+  display: table;
+  margin-top: 0.35rem;
 }
 
 .horizonPicker {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.6rem;
+  gap: clamp(0.25rem, 1vw, 0.65rem);
+  min-width: 0;
+  padding: 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--nav);
+}
+
+.horizonPicker::before {
+  position: absolute;
+  inset-inline: 1.4rem;
+  top: 1.63rem;
+  height: 1px;
+  background: var(--control-border);
+  content: '';
+  pointer-events: none;
 }
 
 .horizonChoice {
+  position: relative;
   display: grid;
-  align-content: center;
-  gap: 0.3rem;
-  min-height: 5rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--control-border);
-  border-radius: 0.7rem;
-  background: var(--surface, #fff);
-  color: inherit;
+  align-content: start;
+  gap: 0.2rem;
+  min-height: 5.45rem;
+  min-width: 0;
+  padding: 0.86rem clamp(0.5rem, 1.5vw, 1rem) 0.72rem;
+  border: 1px solid transparent;
+  border-radius: 0.65rem;
+  background: transparent;
+  color: var(--ink);
   text-align: left;
   font: inherit;
-  cursor: pointer;
+  transition: background-color var(--transition), border-color var(--transition);
 }
 
 .horizonChoice:hover {
-  border-color: var(--action);
+  border-color: var(--control-border);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
 }
 
 .horizonChoice[aria-pressed='true'] {
-  border-color: var(--nav);
+  border-color: color-mix(in srgb, var(--action) 42%, var(--line));
+  background: color-mix(in srgb, var(--action) 13%, transparent);
+}
+
+.horizonMarker {
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-bottom: 0.23rem;
+  border: 2px solid var(--muted);
+  border-radius: 50%;
   background: var(--nav);
-  color: #fff;
+}
+
+.horizonChoice[aria-pressed='true'] .horizonMarker {
+  border-color: var(--action);
+  background: var(--action);
+  box-shadow: 0 0 0 0.27rem color-mix(in srgb, var(--nav) 70%, var(--action));
 }
 
 .horizonChoice small {
-  font-size: 0.79rem;
-  line-height: 1.3;
+  color: var(--muted);
+  font-size: 0.77rem;
+  font-weight: 650;
+  line-height: 1.25;
 }
 
 .horizonChoice strong {
-  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  font-size: clamp(1rem, 1.9vw, 1.35rem);
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.horizonChoice[aria-pressed='true'] strong { color: var(--action); }
+
+.phasePanel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(1rem, 2.7vw, 2.1rem);
+  min-width: 0;
 }
 
 .phaseIntro {
   display: grid;
-  gap: 0.6rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--line, #d7e2dd);
+  gap: 0.65rem;
+  padding-bottom: clamp(1.1rem, 2.4vw, 1.9rem);
+  animation: phase-appear 220ms ease-out both;
 }
+
+@keyframes phase-appear {
+  from { transform: translateY(0.22rem); }
+  to { transform: translateY(0); }
+}
+
+.phaseIntro h2 {
+  max-width: 31ch;
+  font-size: clamp(1.65rem, 3.9vw, 2.7rem);
+  font-weight: 760;
+  letter-spacing: -0.04em;
+}
+
+.phaseIntro p { max-width: 72ch; }
+.phaseObjective { font-size: clamp(0.99rem, 1.55vw, 1.12rem); }
 
 .lanes {
+  --rail-space: clamp(3rem, 5.3vw, 4.25rem);
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.85rem;
+  padding-inline-start: var(--rail-space);
 }
 
-.lane,
-.phaseDetail {
-  display: grid;
-  align-content: start;
-  min-width: 0;
-  gap: 0.6rem;
+.lanes::before {
+  position: absolute;
+  inset-block: 2rem 2.2rem;
+  inset-inline-start: 1.16rem;
+  width: 1px;
+  background: color-mix(in srgb, var(--electric, #42d9e8) 52%, var(--line));
+  content: '';
 }
 
 .lane {
-  padding: 1rem;
-  border: 1px solid var(--line, #d7e2dd);
-  border-radius: 0.65rem;
-  background: var(--surface, #fff);
+  --lane-color: var(--action);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(8.5rem, 0.47fr) minmax(0, 1.53fr);
+  align-items: start;
+  min-width: 0;
+  gap: 0.75rem 1.15rem;
+  padding-block: 1.15rem;
+  border-top: 1px solid var(--line);
 }
+
+.lane[data-lane='refining'] { --lane-color: var(--warm, #f5c76a); }
+.lane[data-lane='distribution'] { --lane-color: var(--electric, #42d9e8); }
 
 .laneHeading {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: var(--action);
+  min-height: 2.35rem;
+  color: var(--lane-color);
 }
 
-.laneHeading svg {
+.laneHeading h3 {
+  font-size: clamp(1rem, 1.7vw, 1.2rem);
+  line-height: 1.24;
+}
+
+.laneIcon {
+  position: absolute;
+  inset-inline-start: calc(-1 * var(--rail-space));
+  top: 1.14rem;
+  display: grid;
+  place-items: center;
+  width: 2.38rem;
+  height: 2.38rem;
+  border: 1px solid color-mix(in srgb, var(--lane-color) 52%, var(--line));
+  border-radius: 0.67rem;
+  background: var(--nav);
+  color: var(--lane-color);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.62rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.actions li {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  padding: 0.7rem 0.83rem;
+  border: 1px solid var(--line);
+  border-radius: 0.58rem;
+  background: var(--canvas);
+  overflow-wrap: anywhere;
+}
+
+.actions p {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.actionLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: fit-content;
+  min-height: 1.75rem;
+  color: var(--ink);
+  font-size: 0.89rem;
+  font-weight: 740;
+  text-decoration-thickness: 1px;
+}
+
+.actionLink svg {
   flex: 0 0 auto;
+  color: var(--lane-color);
+}
+
+.actionLink:hover { color: var(--lane-color); }
+
+.gateLane {
+  --lane-color: var(--warm, #f5c76a);
+  padding-bottom: 0;
+}
+
+.gateContent {
+  display: grid;
+  min-width: 0;
+  gap: 0.9rem;
+}
+
+.gateContent > .list { color: var(--muted); }
+
+.gateLinks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gateLinks a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0.18rem 0.6rem;
+  min-height: 3.9rem;
+  padding: 0.56rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 0.53rem;
+  background: var(--canvas);
+  color: var(--ink);
+  font-size: 0.87rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.gateLinks a:hover { border-color: var(--lane-color); }
+
+.gateLinks a > svg {
+  grid-area: 1 / 2 / 3 / 3;
+  color: var(--lane-color);
+}
+
+.gateStage {
+  color: var(--muted);
+  font-size: 0.79rem;
+  font-weight: 550;
 }
 
 .list {
   display: grid;
-  gap: 0.5rem;
-  padding-left: 1.15rem;
+  gap: 0.45rem;
   margin: 0;
+  padding-inline-start: 1.13rem;
 }
 
-.actionLink {
-  display: flex;
-  align-items: center;
-  min-height: 1.5rem;
-  margin-top: 0.25rem;
-  width: fit-content;
-  font-size: 0.82rem;
-  font-weight: 650;
-}
+.list li::marker { color: var(--action); }
 
 .phaseDetails {
   display: grid;
@@ -244,52 +602,96 @@
   gap: 0.85rem;
 }
 
+.phaseDetail {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  gap: 0.65rem;
+}
+
+.phaseKpis { grid-column: 1 / -1; }
+
+.phaseDetailHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.phaseDetailHeading svg {
+  flex: 0 0 auto;
+  color: var(--electric, #42d9e8);
+}
+
 .phaseDetail h4 {
-  margin: 0.4rem 0 0;
+  margin: 0.24rem 0 0;
+  color: var(--muted);
   font-size: 0.85rem;
   font-weight: 650;
-  color: var(--muted, #48635e);
 }
 
 .linkedRecords {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem 0.85rem;
+  gap: 0.45rem 0.7rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+.linkedRecords li { min-width: 0; }
+
 .linkedRecords a {
   display: inline-flex;
-  min-height: 2.25rem;
   align-items: center;
   gap: 0.25rem;
+  min-height: 2.25rem;
 }
 
-@media (max-width: 60rem) {
-  .filters {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .lanes {
-    grid-template-columns: 1fr;
-  }
+.roadmapPage .linkedRecords a,
+.portfolioPage .linkedRecords a {
+  min-height: 2rem;
+  padding: 0.15rem 0.54rem;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  color: var(--action);
+  font-size: 0.84rem;
+  text-decoration: none;
+  overflow-wrap: anywhere;
 }
 
-@media (max-width: 40rem) {
-  .portfolioGrid,
-  .phaseDetails {
-    grid-template-columns: 1fr;
-  }
-
-  .horizonChoice {
-    padding: 0.55rem 0.4rem;
-  }
+.roadmapPage .linkedRecords a:hover,
+.portfolioPage .linkedRecords a:hover {
+  border-color: var(--action);
+  text-decoration: underline;
 }
 
-@media (max-width: 27rem) {
-  .filters {
-    grid-template-columns: 1fr;
-  }
+@container portfolio (max-width: 56rem) {
+  .portfolioPage .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@container portfolio (max-width: 42rem) {
+  .portfolioGrid { grid-template-columns: 1fr; }
+}
+
+@container portfolio (max-width: 27rem) {
+  .filters .field:first-child,
+  .filters .field:last-child { grid-column: 1 / -1; }
+}
+
+@container roadmap (min-width: 72rem) {
+  .actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@container roadmap (max-width: 55rem) {
+  .lane { grid-template-columns: minmax(0, 1fr); }
+}
+
+@container roadmap (max-width: 37rem) {
+  .phaseDetails,
+  .actions,
+  .gateLinks { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phaseIntro { animation: none; }
 }

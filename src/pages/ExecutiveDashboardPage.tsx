@@ -1,20 +1,11 @@
+import { useState } from 'react'
 import {
-  ArrowDownRight,
-  ArrowRight,
-  ChartNoAxesCombined,
-  ClipboardCheck,
-  Factory,
-  Fuel,
-  MapPin,
-  PanelsTopLeft,
-  Route,
-  ScrollText,
-  Users,
-  Waypoints,
+  ArrowDownRight, ArrowRight, BarChart3, ClipboardCheck, Factory, Fuel, MapPin,
+  Route, ScrollText, Users, Waypoints,
 } from 'lucide-react'
 import { Link } from 'react-router'
 import { routes } from '../app/routes'
-import corridorImage from '../assets/energy-corridor.webp'
+import energyImage from '../assets/energy-intelligence.webp'
 import { EvidenceBadge, RecordSources } from '../components/evidence/Evidence'
 import { StrategyRecordLinks } from '../components/strategy/StrategyRecordLinks'
 import styles from '../components/strategy/StrategyStory.module.css'
@@ -24,35 +15,53 @@ import { project } from '../data/project'
 import { pillars } from '../data/strategy'
 
 const pathway = [
-  { label: 'Regulation and demand', Icon: ScrollText },
+  { label: 'Regulation & demand', Icon: ScrollText },
   { label: 'Refining transformation', Icon: Factory },
-  { label: 'Qualified energy products', Icon: Fuel },
+  { label: 'Lower-carbon energy', Icon: Fuel },
   { label: 'Distribution network', Icon: MapPin },
-  { label: 'Digital platform', Icon: PanelsTopLeft },
-  { label: 'Customer and fleet services', Icon: Users },
-  { label: 'Operating and demand data', Icon: ChartNoAxesCombined },
+  { label: 'Customer & fleet', Icon: Users },
+  { label: 'Data & evidence', Icon: BarChart3 },
+  { label: 'Investment decision', Icon: ClipboardCheck },
 ]
 
-const pillarIcons: Partial<Record<string, typeof Factory>> = {
-  'efficient-refining': Factory,
-  'selective-stations': Route,
-  'customer-fleet-services': Users,
-  'evidence-led-investment': ClipboardCheck,
+const pillarCards: Partial<Record<string, { title: string; Icon: typeof Factory }>> = {
+  'efficient-refining': { title: 'Efficient Refining', Icon: Factory },
+  'selective-stations': { title: 'Selective Station Transformation', Icon: Route },
+  'customer-fleet-services': { title: 'Customer & Fleet Services', Icon: Users },
+  'evidence-led-investment': { title: 'Evidence-Led Investment', Icon: ClipboardCheck },
 }
 
 export default function ExecutiveDashboardPage() {
+  const [selected, setSelected] = useState<string | null>(null)
+  const [hovered, setHovered] = useState<string | null>(null)
+  const [focused, setFocused] = useState<string | null>(null)
+  const active = pillars.find(({ id }) => id === (hovered ?? focused ?? selected))
   const proposedKpis = kpis.filter((kpi) => kpi.status === 'Proposed definition')
   const verifiedBaselines = proposedKpis.filter((kpi) => kpi.baseline.evidenceType === 'VERIFIED FACT')
   const documentedApprovals = gates.filter((gate) => gate.approval.evidenceType === 'VERIFIED FACT')
 
+  function clearPillar() {
+    setSelected(null)
+    setHovered(null)
+    setFocused(null)
+  }
+
+  function togglePillar(id: string) {
+    if (selected === id) clearPillar()
+    else setSelected(id)
+  }
+
   return (
-    <div className="page stack">
+    <div className={`page ${styles.story}`}>
       <section className={styles.hero} aria-labelledby="executive-heading">
-        <img src={corridorImage} className={styles.heroArt} alt="" fetchPriority="high" />
-        <p className={styles.heroCaption}>Illustrative scene</p>
+        <img src={energyImage} className={styles.heroArt} alt="" fetchPriority="high" />
         <div className={styles.heroContent}>
           <p className={styles.heroMeta}>Part 7 · Academic strategy prototype</p>
-          <h1 id="executive-heading" className={styles.heroTitle} tabIndex={-1}>The transition, connected.</h1>
+          <h1 id="executive-heading" className={styles.heroTitle} tabIndex={-1}>
+            <span>From refinery</span>{' '}
+            <span>to multi-energy</span>{' '}
+            <span>mobility ecosystem</span>
+          </h1>
           <p className={styles.heroThesis}>{project.thesis}</p>
           <div className={styles.heroLinks}>
             <Link className="button" to={routes.valueChain}>
@@ -61,28 +70,44 @@ export default function ExecutiveDashboardPage() {
             <Link className="button button-secondary" to={routes.roadmap}>View the roadmap</Link>
           </div>
         </div>
+        <p className={styles.heroCaption}>Illustrative scene</p>
       </section>
 
-      <section className={`${styles.section} panel`} aria-labelledby="pathway-heading">
+      <section className={`${styles.section} ${styles.chainPanel} panel`} aria-labelledby="pathway-heading">
         <div className={styles.sectionHeader}>
-          <div>
-            <h2 id="pathway-heading">From regulation to investment evidence</h2>
-            <p className="muted">The proposed model connects refinery and network decisions through the services customers and fleets use.</p>
-          </div>
+          <h2 id="pathway-heading">From regulation to investment decision</h2>
           <EvidenceBadge type="STRATEGIC RECOMMENDATION" />
         </div>
         <ol className={styles.pathway}>
-          {pathway.map(({ label, Icon }) => (
-            <li key={label}><Icon size={21} aria-hidden="true" /><span>{label}</span></li>
+          {pathway.map(({ label, Icon }, index) => (
+            <li key={label}>
+              {index > 0 && <ArrowRight className={styles.pathwayArrow} size={15} aria-hidden="true" />}
+              <Icon size={24} aria-hidden="true" />
+              <span>{label}</span>
+            </li>
           ))}
         </ol>
         <p className={styles.feedback}>
           <ArrowDownRight size={17} aria-hidden="true" />
-          <span>Supply, service and demand evidence returns to IP for review of refinery allocation and station investment.</span>
+          <span>Supply, service and demand evidence informs IP’s next review of refinery allocation and station investment.</span>
         </p>
       </section>
 
-      <section className={styles.section} aria-labelledby="pillars-heading">
+      <section
+        className={styles.section}
+        aria-labelledby="pillars-heading"
+        onPointerLeave={() => setHovered(null)}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) setFocused(null)
+        }}
+        onKeyDown={(event) => {
+          if (event.key !== 'Escape' || !active) return
+          if (event.target instanceof Element && event.target.closest('#pillar-details')) {
+            event.currentTarget.querySelector<HTMLButtonElement>('button[data-active="true"]')?.focus()
+          }
+          clearPillar()
+        }}
+      >
         <div className={styles.sectionHeader}>
           <h2 id="pillars-heading">Strategic pillars</h2>
           <Link to={routes.portfolio} className={styles.textLink}>
@@ -90,43 +115,65 @@ export default function ExecutiveDashboardPage() {
           </Link>
         </div>
         <div className={styles.pillarGrid}>
-          {pillars.map((pillar) => {
-            const Icon = pillarIcons[pillar.id] ?? Waypoints
+          {pillars.map((pillar, index) => {
+            const card = pillarCards[pillar.id]
+            const Icon = card?.Icon ?? Waypoints
             return (
-              <article className={`${styles.pillar} panel`} key={pillar.id}>
-                <header className={styles.pillarHeader}>
-                  <span className={styles.pillarIcon}><Icon size={21} aria-hidden="true" /></span>
-                  <div>
-                    <h3>{pillar.title}</h3>
-                    <EvidenceBadge type={pillar.evidenceType} />
-                  </div>
-                </header>
-                <p>{pillar.objective}</p>
-                <dl className={styles.contributions}>
-                  <div><dt>Refining</dt><dd>{pillar.refiningContribution}</dd></div>
-                  <div><dt>Distribution</dt><dd>{pillar.distributionContribution}</dd></div>
-                  <div><dt>Digital</dt><dd>{pillar.digitalContribution}</dd></div>
-                </dl>
-                <details className={styles.pillarDetails}>
-                  <summary>Rationale and implementation details</summary>
-                  <p>{pillar.businessRationale}</p>
-                  <dl className={styles.contributions}>
-                    <div><dt>Audience</dt><dd>{pillar.customerSegments.join(', ')}</dd></div>
-                    <div><dt>Dependencies</dt><dd><StrategyRecordLinks records={pillar.dependencies} /></dd></div>
-                    <div>
-                      <dt>Risks</dt>
-                      <dd><StrategyRecordLinks records={pillar.riskIds.map((id) => ({ kind: 'risk', id }))} /></dd>
-                    </div>
-                    <div>
-                      <dt>KPIs</dt>
-                      <dd><StrategyRecordLinks records={pillar.kpiIds.map((id) => ({ kind: 'kpi', id }))} /></dd>
-                    </div>
-                  </dl>
-                  <RecordSources record={pillar} />
-                </details>
-              </article>
+              <button
+                type="button"
+                className={styles.pillarButton}
+                key={pillar.id}
+                onPointerEnter={(event) => {
+                  if (event.pointerType !== 'touch') setHovered(pillar.id)
+                }}
+                onFocus={() => {
+                  setHovered(null)
+                  setFocused(pillar.id)
+                }}
+                onClick={() => togglePillar(pillar.id)}
+                aria-label={card?.title ?? pillar.title}
+                aria-controls="pillar-details"
+                aria-pressed={selected === pillar.id}
+                data-active={active?.id === pillar.id}
+              >
+                <span className={styles.pillarTop}>
+                  <span className={styles.pillarIcon}><Icon size={22} aria-hidden="true" /></span>
+                  <span className={styles.pillarNumber} aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                </span>
+                <strong>{card?.title ?? pillar.title}</strong>
+                <span className={styles.pillarSummary}>{pillar.description}</span>
+              </button>
             )
           })}
+        </div>
+        <div id="pillar-details" className={styles.pillarDetailSlot}>
+          {active && (
+            <article className={`${styles.pillarDetail} panel`} aria-labelledby="pillar-detail-title" key={active.id}>
+              <div className={styles.sectionHeader}>
+                <div>
+                  <h3 id="pillar-detail-title">{active.title}</h3>
+                  <p className="muted">{active.objective}</p>
+                </div>
+                <EvidenceBadge type={active.evidenceType} />
+              </div>
+              <dl className={styles.roleGrid}>
+                <div><dt>Refining role</dt><dd>{active.refiningContribution}</dd></div>
+                <div><dt>Distribution role</dt><dd>{active.distributionContribution}</dd></div>
+                <div><dt>Digital role</dt><dd>{active.digitalContribution}</dd></div>
+                <div><dt>Decision consequence</dt><dd>{active.businessRationale}</dd></div>
+              </dl>
+              <details className={styles.recordDetails}>
+                <summary>Audience, dependencies, risks and KPIs</summary>
+                <dl className={styles.recordList}>
+                  <div><dt>Audience</dt><dd>{active.customerSegments.join(', ')}</dd></div>
+                  <div><dt>Dependencies</dt><dd><StrategyRecordLinks records={active.dependencies} /></dd></div>
+                  <div><dt>Risks</dt><dd><StrategyRecordLinks records={active.riskIds.map((id) => ({ kind: 'risk', id }))} /></dd></div>
+                  <div><dt>KPIs</dt><dd><StrategyRecordLinks records={active.kpiIds.map((id) => ({ kind: 'kpi', id }))} /></dd></div>
+                </dl>
+                <RecordSources record={active} />
+              </details>
+            </article>
+          )}
         </div>
       </section>
 
@@ -141,10 +188,7 @@ export default function ExecutiveDashboardPage() {
           </Link>
         </div>
         <dl className={styles.readiness}>
-          <div>
-            <dt>Strategic pillars</dt>
-            <dd>{pillars.length}<span>Included in the academic strategy</span></dd>
-          </div>
+          <div><dt>Strategic pillars</dt><dd>{pillars.length}<span>Included in the academic strategy</span></dd></div>
           <div>
             <dt>Verified KPI baselines</dt>
             <dd>

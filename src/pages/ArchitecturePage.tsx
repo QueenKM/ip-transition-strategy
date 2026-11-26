@@ -1,4 +1,8 @@
-import { Building2, DatabaseZap, Factory, Gauge, Layers3, Smartphone, Truck } from 'lucide-react'
+import {
+  ArrowDownRight, ArrowRight, Building2, ClipboardCheck, DatabaseZap, Factory, Gauge,
+  Layers3, Network, PlugZap, RotateCcw, ShieldCheck, Smartphone, Truck,
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { routes } from '../app/routes'
@@ -22,16 +26,109 @@ type ConnectionFilter = 'All' | ArchitectureConnection['status']
 
 const connectionFilters: readonly ConnectionFilter[] = ['All', 'Existing', 'Required', 'Future']
 
+interface LandscapeLayer {
+  title: string
+  icon: LucideIcon
+  items: readonly {
+    title: string
+    description: string
+    tone?: 'fuel' | 'electric' | 'conceptual' | 'governance'
+  }[]
+}
+
+const layers: readonly LandscapeLayer[] = [
+  {
+    title: 'Physical energy layer',
+    icon: PlugZap,
+    items: [
+      { title: 'Liquid fuels', description: 'Refinery output and sourced products for eligible channels.', tone: 'fuel' },
+      { title: 'Electricity', description: 'Procurement, grid connection and assessed on-site supply.', tone: 'electric' },
+    ],
+  },
+  {
+    title: 'Operations & distribution',
+    icon: Factory,
+    items: [
+      { title: 'Refining and logistics', description: 'Operating performance, product quality and supply windows.', tone: 'fuel' },
+      { title: 'Stations and charging', description: 'Forecourt services, connector status and service delivery.', tone: 'electric' },
+    ],
+  },
+  {
+    title: 'Customer / fleet services',
+    icon: Smartphone,
+    items: [
+      { title: 'Customer channels', description: 'Discover compatible services and check availability.' },
+      { title: 'Fleet portal', description: 'Confirm eligibility, request services and track fulfilment.' },
+    ],
+  },
+  {
+    title: 'Data & analytics',
+    icon: DatabaseZap,
+    items: [
+      { title: 'Evidence and metrics', description: 'Validate provenance and aggregate permitted operating and demand records.' },
+    ],
+  },
+  {
+    title: 'Strategy control',
+    icon: ClipboardCheck,
+    items: [
+      { title: 'Management dashboard', description: 'Review portfolio risks, KPI boundaries and evidence at the decision gate.' },
+      { title: 'AI-assisted strategy layer', description: 'Conceptual support for evidence review.', tone: 'conceptual' },
+    ],
+  },
+  {
+    title: 'Human governance',
+    icon: ShieldCheck,
+    items: [
+      { title: 'Accountable decision owner', description: 'Approve, review or stop an initiative and record the rationale.', tone: 'governance' },
+    ],
+  },
+]
+
+function ArchitectureLandscape() {
+  return (
+    <figure className={styles.flow}>
+      <figcaption className={styles.flowHeading}>
+        <span>From energy supply to investment review</span>
+        <span className={styles.status} data-status="Future"><Network size={14} aria-hidden="true" /> Conceptual model</span>
+      </figcaption>
+      <ol className={styles.layers}>
+        {layers.map(({ title, icon: Icon, items }) => (
+          <li key={title} className={styles.layer}>
+            <div className={styles.layerLabel}>
+              <span className={styles.layerIcon}><Icon size={18} aria-hidden="true" /></span>
+              <strong>{title}</strong>
+              <ArrowDownRight className={styles.layerArrow} size={14} aria-hidden="true" />
+            </div>
+            <div className={styles.layerItems} data-wide={items.length === 1}>
+              {items.map((item) => (
+                <div key={item.title} className={styles.layerItem} data-tone={item.tone}>
+                  <strong>{item.title}</strong>
+                  <span>{item.description}</span>
+                </div>
+              ))}
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p className={styles.feedback}><RotateCcw size={16} aria-hidden="true" />
+        <span>Review decisions return to refining and distribution owners.</span>
+      </p>
+    </figure>
+  )
+}
+
 function ArchitectureSystem({ node }: { node: ArchitectureNode }) {
   const Icon = nodeIcons[node.kind]
   return (
-    <article className={`panel ${styles.node}`}>
-      <div>
+    <article className={styles.node}>
+      <div className={styles.nodeHeading}>
         <span className={styles.iconTile}><Icon size={20} aria-hidden="true" /></span>
-        <span className="tag">{node.status}</span>
+        <span className={styles.status} data-status={node.status}>{node.status}</span>
       </div>
       <h3>{node.title}</h3>
       <p>{node.description}</p>
+      <p className={styles.owner}>{node.owner}</p>
       <EvidenceBadge type={node.evidenceType} />
       <RecordSources record={node} />
     </article>
@@ -47,43 +144,41 @@ export default function ArchitecturePage() {
   const connections = architectureConnections.filter(({ status }) => filter === 'All' || status === filter)
 
   return (
-    <div className="page">
+    <div className={`page ${styles.darkPage}`}>
       <PageHeading eyebrow="Strategy control" title="Architecture and Data Flow"
-        description="See how product records and service activity could move from operating systems into customer experiences and investment review." />
-      <figure className={styles.flow}>
-        <figcaption>Data flow for the proposed operating model</figcaption>
-        <ol>
-          <li><strong>Operating systems</strong><span>Refining, stations and charging hold distinct product and service records.</span></li>
-          <li><strong>Mobility services</strong><span>A customer platform and fleet portal consume approved offers and generate service activity.</span></li>
-          <li><strong>Analytics</strong><span>Validate provenance and aggregate demand, delivery and availability.</span></li>
-          <li><strong>Human review</strong><span>Compare initiatives in the management dashboard against investment criteria.</span></li>
-        </ol>
-        <p>Management reviews the evidence and returns decisions to the operating teams.</p>
-      </figure>
+        description="The proposed operating model connects product supply and station services with decisions on where to invest." />
+      <ArchitectureLandscape />
       <section className={styles.systems} aria-labelledby="systems-heading">
-        <div className={styles.sectionHead}><h2 id="systems-heading">Systems and responsibilities</h2><p>Documented capabilities and proposed systems carry their own evidence labels.</p></div>
+        <div className={styles.sectionHead}><h2 id="systems-heading">Systems and responsibilities</h2><p>Open a source to check the scope of a documented capability or the basis for a proposed system.</p></div>
         <div className={styles.nodes}>{architectureNodes.map((node) => <ArchitectureSystem key={node.id} node={node} />)}</div>
       </section>
       <section className={styles.systems} aria-labelledby="connection-heading">
-        <div className={styles.sectionHead}><h2 id="connection-heading">Integration register</h2><p>Existing connections require evidence of the specific interface. Required and future entries describe the design.</p></div>
-        <div className={styles.filter} aria-label="Connection status">
-          {connectionFilters.map((value) => (
-            <button key={value} type="button" className={filter === value ? 'button' : 'button-secondary'}
-              onClick={() => setFilter(value)} aria-pressed={filter === value}>{value}</button>
-          ))}
+        <div className={styles.sectionHead}><h2 id="connection-heading">Integration register</h2><p>Existing records document product interactions. Required and Future describe proposed interfaces.</p></div>
+        <div className={styles.registerTools}>
+          <div className={styles.filter} role="group" aria-label="Connection status">
+            {connectionFilters.map((value) => (
+              <button key={value} type="button" className={styles.filterButton}
+                aria-controls="architecture-connections"
+                onClick={() => setFilter(value)} aria-pressed={filter === value}>{value}</button>
+            ))}
+          </div>
+          <p className={styles.resultCount} aria-live="polite">
+            {connections.length} {connections.length === 1 ? 'connection' : 'connections'}
+          </p>
         </div>
-        <div className="stack" aria-live="polite">
-          {connections.length === 0 && <p className="panel"><strong>No data.</strong> The register has no verified connection in this category.</p>}
+        <div className={styles.connectionList} id="architecture-connections">
+          {connections.length === 0 && <p className={styles.connection}><strong>No data.</strong> Connections are unavailable for this status.</p>}
           {connections.map((connection) => (
-            <article key={connection.id} className={`panel ${styles.connection}`}>
+            <article key={connection.id} className={styles.connection}>
               <div>
-                <span className="tag">{connection.status}</span>
+                <span className={styles.status} data-status={connection.status}>{connection.status}</span>
                 <h3>{connection.title}</h3>
-                <p className={styles.connectionRoute}>{nodeName(connection.fromNodeId)} <span aria-hidden="true">→</span><span className="sr-only"> to </span> {nodeName(connection.toNodeId)}</p>
+                <p className={styles.connectionRoute}>{nodeName(connection.fromNodeId)} <ArrowRight size={14} aria-hidden="true" /><span className="sr-only"> to </span> {nodeName(connection.toNodeId)}</p>
               </div>
               <div>
                 <p>{connection.description}</p>
-                <p className="muted">{connection.dataExchanged}</p>
+                <p className={styles.exchange}>{connection.dataExchanged}</p>
+                <p className={styles.owner}>{connection.owner}</p>
                 <EvidenceBadge type={connection.evidenceType} />
                 <RecordSources record={connection} />
               </div>
@@ -91,7 +186,7 @@ export default function ArchitecturePage() {
           ))}
         </div>
       </section>
-      <p className={styles.followLink}><Link to={routes.gate}>Review the investment decision gate</Link></p>
+      <p className={styles.followLink}><Link to={routes.gate}>Review the investment decision gate <ArrowRight size={16} aria-hidden="true" /></Link></p>
     </div>
   )
 }

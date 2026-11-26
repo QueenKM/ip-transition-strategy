@@ -1,4 +1,4 @@
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, ChevronDown, LayoutGrid, List, Search } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
 import { routes } from '../app/routes'
 import { DatumValue, EvidenceBadge, RecordSources } from '../components/evidence/Evidence'
@@ -13,6 +13,7 @@ import type { AssessmentDimension, Horizon, PortfolioPriority, TechnologyOption 
 const priorities: readonly PortfolioPriority[] = ['Start now', 'Pilot', 'Monitor', 'Defer', 'Exclude']
 const horizons: readonly Horizon[] = ['0–3 years', '3–7 years', '7–15+ years']
 const investmentOptions = ['Low', 'Medium', 'High', 'No data'] as const
+const filterKeys = ['q', 'priority', 'horizon', 'investment'] as const
 const ratingLabels: readonly [AssessmentDimension, string][] = [
   ['strategicFit', 'Strategic fit'],
   ['demandVisibility', 'Demand visibility'],
@@ -23,18 +24,24 @@ const ratingLabels: readonly [AssessmentDimension, string][] = [
   ['implementationRisk', 'Implementation risk'],
 ]
 
+function PriorityChip({ priority }: { priority: PortfolioPriority }) {
+  return <span className={styles.priorityChip} data-priority={priority}>{priority}</span>
+}
+
 function TechnologyCard({ technology }: { technology: TechnologyOption }) {
   const relatedInitiatives = initiatives.filter(({ id }) => technology.initiativeIds.includes(id))
   const relatedRisks = risks.filter(({ id }) => technology.riskIds.includes(id))
 
   return (
-    <article className={`panel ${styles.technologyCard}`} aria-labelledby={`${technology.id}-title`}>
-      <div className={styles.cardHeader}>
-        <span className="tag">{technology.status}</span>
-        <EvidenceBadge type={technology.evidenceType} />
-      </div>
-      <h2 id={`${technology.id}-title`}>{technology.title}</h2>
-      <p>{technology.description}</p>
+    <article className={`panel ${styles.technologyCard}`} data-priority={technology.status} aria-labelledby={`${technology.id}-title`}>
+      <header className={styles.technologyIntro}>
+        <div className={styles.cardHeader}>
+          <PriorityChip priority={technology.status} />
+          <EvidenceBadge type={technology.evidenceType} />
+        </div>
+        <h2 id={`${technology.id}-title`}>{technology.title}</h2>
+        <p>{technology.description}</p>
+      </header>
       <dl className={styles.metricGrid}>
         <div>
           <dt>Industry maturity</dt>
@@ -53,7 +60,7 @@ function TechnologyCard({ technology }: { technology: TechnologyOption }) {
           <dd><DatumValue datum={technology.investmentIntensity} /></dd>
         </div>
       </dl>
-      <p>{technology.rationale}</p>
+      <p className={styles.rationale}>{technology.rationale}</p>
       <dl className={styles.cardContext}>
         <div>
           <dt>Dependencies</dt>
@@ -70,8 +77,8 @@ function TechnologyCard({ technology }: { technology: TechnologyOption }) {
           </dd>
         </div>
       </dl>
-      <details>
-        <summary>Assessment and evidence</summary>
+      <details className={styles.assessment}>
+        <summary>Assessment and evidence <ChevronDown size={17} aria-hidden="true" /></summary>
         <dl className={styles.detailGrid}>
           {ratingLabels.map(([key, label]) => {
             const rating = technology.ratings[key]
@@ -117,12 +124,50 @@ function TechnologyCard({ technology }: { technology: TechnologyOption }) {
   )
 }
 
+function PortfolioComparison({ options }: { options: readonly TechnologyOption[] }) {
+  return (
+    <div className={styles.comparison} tabIndex={0} role="region" aria-label="Technology comparison table">
+      <table>
+        <caption className="sr-only">Compare the filtered technology options</caption>
+        <thead>
+          <tr>
+            <th scope="col">Technology</th>
+            <th scope="col">Priority</th>
+            <th scope="col">Proposed horizon</th>
+            <th scope="col">Indicative investment intensity</th>
+            <th scope="col">Industry maturity</th>
+            <th scope="col">IP readiness</th>
+            <th scope="col">Implementation risk</th>
+          </tr>
+        </thead>
+        <tbody>
+          {options.map((technology) => (
+            <tr key={technology.id}>
+              <th scope="row">
+                {technology.title}
+                <EvidenceBadge type={technology.evidenceType} />
+              </th>
+              <td><PriorityChip priority={technology.status} /></td>
+              <td>{technology.timeHorizon ?? 'No data'}</td>
+              <td><DatumValue datum={technology.investmentIntensity} /></td>
+              <td><DatumValue datum={technology.industryMaturity} /></td>
+              <td><DatumValue datum={technology.ipReadiness} /></td>
+              <td>{technology.ratings.implementationRisk ? <DatumValue datum={technology.ratings.implementationRisk} /> : 'No data'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 export default function TechnologyPortfolioPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const query = searchParams.get('q') ?? ''
   const priority = priorities.find((option) => option === searchParams.get('priority')) ?? ''
   const horizon = horizons.find((option) => option === searchParams.get('horizon')) ?? ''
   const investment = investmentOptions.find((option) => option === searchParams.get('investment')) ?? ''
+  const isComparing = searchParams.get('view') === 'compare'
   const searchTerm = query.trim().toLowerCase()
   const filtered = technologies.filter((technology) => {
     const searchableText = `${technology.title} ${technology.description} ${technology.rationale}`.toLowerCase()
@@ -140,25 +185,36 @@ export default function TechnologyPortfolioPage() {
     setSearchParams(updated, { replace: true })
   }
 
+  function clearFilters() {
+    const updated = new URLSearchParams(searchParams)
+    filterKeys.forEach((key) => updated.delete(key))
+    setSearchParams(updated, { replace: true })
+  }
+
   return (
-    <div className="page stack">
+    <div className={`page stack ${styles.portfolioPage}`}>
       <PageHeading
         eyebrow="Strategy control"
         title="Technology Portfolio"
         description="Compare proposed priorities with industry maturity, IP readiness and the conditions for investment."
       >
-        <Link className="button button-secondary" to={`${routes.evidence}?tab=evidence`}>Open evidence register</Link>
+        <Link className="button button-secondary" to={`${routes.evidence}?tab=evidence`}>
+          Open evidence register <ArrowUpRight size={16} aria-hidden="true" />
+        </Link>
       </PageHeading>
 
       <section className={`panel ${styles.filters}`} aria-label="Filter technology options">
         <label className={styles.field}>
           Search options
-          <input
-            type="search"
-            placeholder="e.g. charging, heat recovery"
-            value={query}
-            onChange={(event) => updateFilter('q', event.target.value)}
-          />
+          <span className={styles.searchField}>
+            <Search size={18} aria-hidden="true" />
+            <input
+              type="search"
+              placeholder="e.g. charging, heat recovery"
+              value={query}
+              onChange={(event) => updateFilter('q', event.target.value)}
+            />
+          </span>
         </label>
         <label className={styles.field}>
           Priority
@@ -184,20 +240,28 @@ export default function TechnologyPortfolioPage() {
       </section>
 
       <div className={styles.resultBar}>
-        <p role="status" className="muted">{filtered.length} of {technologies.length} options shown</p>
-        {(query || horizon || priority || investment) && (
-          <button type="button" className="button button-secondary" onClick={() => setSearchParams({}, { replace: true })}>
-            Clear filters
+        <div className={styles.resultSummary}>
+          <p role="status" className="muted">{filtered.length} of {technologies.length} options shown</p>
+          {(query || horizon || priority || investment) && (
+            <button type="button" className={styles.clearButton} onClick={clearFilters}>Clear filters</button>
+          )}
+        </div>
+        <div className={styles.viewSwitch} role="group" aria-label="Portfolio view">
+          <button type="button" aria-pressed={!isComparing} onClick={() => updateFilter('view', '')}>
+            <LayoutGrid size={16} aria-hidden="true" /> Cards
           </button>
-        )}
+          <button type="button" aria-pressed={isComparing} onClick={() => updateFilter('view', 'compare')}>
+            <List size={17} aria-hidden="true" /> Compare
+          </button>
+        </div>
       </div>
 
-      {filtered.length > 0 ? (
+      {filtered.length === 0 && <p className="panel">No options match the selected filters.</p>}
+      {filtered.length > 0 && isComparing && <PortfolioComparison options={filtered} />}
+      {filtered.length > 0 && !isComparing && (
         <div className={styles.portfolioGrid}>
           {filtered.map((technology) => <TechnologyCard key={technology.id} technology={technology} />)}
         </div>
-      ) : (
-        <p className="panel">No options match the selected filters.</p>
       )}
     </div>
   )

@@ -25,12 +25,21 @@ const mobilityNav = [
 export default function AppShell() {
   const { pathname } = useLocation()
   const mainRef = useRef<HTMLElement>(null)
+  const navigationRef = useRef<HTMLDivElement>(null)
   const previousPath = useRef(pathname)
   const isMobility = pathname.startsWith('/mobility/')
   const isStrategy = pathname.startsWith('/strategy')
   const contextualNav = isMobility ? mobilityNav : isStrategy ? strategyNav : []
 
   useEffect(() => {
+    const navigation = navigationRef.current
+    const active = navigation?.querySelector<HTMLElement>('[aria-current="page"]')
+    if (navigation && active && navigation.scrollWidth > navigation.clientWidth) {
+      const navBounds = navigation.getBoundingClientRect()
+      const activeBounds = active.getBoundingClientRect()
+      navigation.scrollLeft += activeBounds.left - navBounds.left
+        - (navBounds.width - activeBounds.width) / 2
+    }
     if (previousPath.current === pathname) return
     previousPath.current = pathname
     window.scrollTo(0, 0)
@@ -39,22 +48,22 @@ export default function AppShell() {
   }, [pathname])
 
   return (
-    <div className={styles.shell}>
+    <div className={styles.shell} data-view={isMobility ? 'mobility' : 'strategy'}>
       <a className={styles.skip} href="#main-content" onClick={(event) => {
         event.preventDefault()
         mainRef.current?.focus()
       }}>Skip to main content</a>
       <header className={styles.header}>
         <div className={styles.topbar}>
-          <Link className={styles.brand} to={routes.strategy} aria-label="Italy Energy Transition overview">
+          <Link className={styles.brand} to={routes.strategy} aria-label="Energy Transition Intelligence overview">
             <span className={styles.mark}><GitBranch size={21} strokeWidth={2.15} aria-hidden="true" /></span>
-            <span className={styles.brandName}>Italy Energy Transition<span>Italiana Petroli case study</span></span>
+            <span className={styles.brandName}>Energy Transition Intelligence<span>Italiana Petroli case study</span></span>
           </Link>
           <nav className={styles.views} aria-label="Application views">
             <Link className={isStrategy ? styles.activeView : styles.view} to={routes.strategy}
-              aria-current={isStrategy ? 'location' : undefined}>Strategy Control</Link>
+              aria-current={isStrategy ? 'location' : undefined}><ChartNoAxesCombined size={15} aria-hidden="true" /> Strategy Control</Link>
             <Link className={isMobility ? styles.activeView : styles.view} to={routes.explore}
-              aria-current={isMobility ? 'location' : undefined}>Customer &amp; Fleet</Link>
+              aria-current={isMobility ? 'location' : undefined}><Compass size={15} aria-hidden="true" /> Customer &amp; Fleet</Link>
           </nav>
           <NavLink className={({ isActive }) => isActive ? styles.aboutActive : styles.about} to={routes.about}>
             About<span> the prototype</span>
@@ -63,7 +72,7 @@ export default function AppShell() {
       </header>
       {contextualNav.length > 0 && (
         <nav className={styles.sectionNav} aria-label={isMobility ? 'Customer and Fleet pages' : 'Strategy pages'}>
-          <div className={styles.navInner}>
+          <div className={styles.navInner} ref={navigationRef}>
             {contextualNav.map(({ to, label, Icon }) => (
               <NavLink end key={to} to={to} className={({ isActive }) => isActive ? styles.activeLink : styles.navLink}>
                 <Icon size={17} aria-hidden="true" />

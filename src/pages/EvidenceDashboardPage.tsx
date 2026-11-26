@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ClipboardList, Database, LibraryBig, Search } from 'lucide-react'
+import { ClipboardList, Database, FileCheck, LibraryBig, Search } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
 import { DatumValue, EvidenceBadge, RecordSources } from '../components/evidence/Evidence'
 import { WorkstreamInputs } from '../components/evidence/WorkstreamInputs'
@@ -57,17 +57,31 @@ function KpiCard({ item, onNavigate }: { item: KPI; onNavigate: () => void }) {
   )
 
   return (
-    <article className={`panel ${styles.kpiCard}`}>
+    <article className={`panel ${styles.kpiCard}`} data-evidence={item.current.evidenceType}>
       <div className={styles.cardHeader}>
         <h2>{item.title}</h2>
         <EvidenceBadge type={item.current.evidenceType} />
       </div>
       <p>{item.definition}</p>
       <dl className={styles.measurements}>
-        <div><dt>Current value</dt><dd><DatumValue datum={item.current} unit={item.unit} /></dd></div>
+        <div className={styles.primaryMeasurement}><dt>Current value</dt><dd><DatumValue datum={item.current} unit={item.unit} /></dd></div>
         <div><dt>Baseline</dt><dd><DatumValue datum={item.baseline} unit={item.unit} /></dd></div>
         <div><dt>Target</dt><dd><DatumValue datum={item.target} unit={item.unit} /></dd></div>
       </dl>
+      <div className={styles.provenanceBlock}>
+        <h3><FileCheck size={16} aria-hidden="true" /> Measurement source</h3>
+        <p>{item.expectedDataSource}</p>
+        <div>
+          <p className={styles.provenanceLabel}>Current value provenance</p>
+          <ProvenanceLinks ids={item.current.value === null ? [] : item.current.evidenceIds} onNavigate={onNavigate} />
+        </div>
+        {inputRequestIds.length > 0 && (
+          <div className={styles.provenanceGap}>
+            <p className={styles.provenanceLabel}>Input needed</p>
+            <WorkstreamInputs requestIds={inputRequestIds} className={styles.referenceList} />
+          </div>
+        )}
+      </div>
       <details className={styles.disclosure}>
         <summary>Measurement and provenance</summary>
         <dl className={styles.factList}>
@@ -78,12 +92,7 @@ function KpiCard({ item, onNavigate }: { item: KPI; onNavigate: () => void }) {
           <div><dt>Frequency</dt><dd>{item.frequency}</dd></div>
           <div><dt>Reporting period</dt><dd>{period ?? 'No data'}</dd></div>
           <div><dt>Last updated</dt><dd>{lastUpdated ?? 'No data'}</dd></div>
-          <div><dt>Measurement source</dt><dd>{item.expectedDataSource}</dd></div>
-          <div><dt>Current value provenance</dt><dd>
-            <ProvenanceLinks ids={item.current.value === null ? [] : item.current.evidenceIds} onNavigate={onNavigate} />
-          </dd></div>
         </dl>
-        <WorkstreamInputs requestIds={inputRequestIds} className={styles.referenceList} />
         <RecordSources record={item} />
       </details>
     </article>
@@ -95,7 +104,7 @@ function TeamCard({ item, onNavigate }: { item: TeamContribution; onNavigate: ()
   const receivedRequests = item.requests.filter((request) => request.status !== 'Missing')
 
   return (
-    <article className={`panel ${styles.recordCard}`}>
+    <article className={`panel ${styles.recordCard}`} data-evidence={item.evidenceType}>
       <div className={styles.cardHeader}>
         <div>
           <p className="eyebrow">Workstream {item.workstream}</p>
@@ -184,6 +193,15 @@ export default function EvidenceDashboardPage() {
         description="Review the measurement boundary, the source behind a claim and the team input needed for the next decision."
       />
 
+      <section className={styles.evidenceLegend} aria-label="Evidence categories">
+        <strong>Evidence categories</strong>
+        <ul>
+          {evidenceTypes.map((type) => (
+            <li key={type}><EvidenceBadge type={type} /></li>
+          ))}
+        </ul>
+      </section>
+
       <nav className={styles.tabs} aria-label="Evidence dashboards">
         {tabs.map(({ id, title, icon: Icon }) => (
           <Link
@@ -229,7 +247,7 @@ export default function EvidenceDashboardPage() {
         </div>}
         {activeTab === 'evidence' && <div className={styles.registerList}>
           {visibleEvidence.map((item) => (
-            <article key={item.id} className={`panel ${styles.recordCard}`}>
+            <article key={item.id} className={`panel ${styles.recordCard}`} data-evidence={item.evidenceType}>
               <div className={styles.cardHeader}>
                 <div>
                   <p className="eyebrow">{item.id}</p>
@@ -246,8 +264,16 @@ export default function EvidenceDashboardPage() {
                 {item.caveat && <div><dt>Caveat</dt><dd>{item.caveat}</dd></div>}
                 {item.impactOfGap && <div><dt>Effect of gap</dt><dd>{item.impactOfGap}</dd></div>}
               </dl>
-              <WorkstreamInputs requestIds={item.inputRequestIds} className={styles.referenceList} />
-              <RecordSources record={item} />
+              <div className={styles.provenanceBlock}>
+                <h3><FileCheck size={16} aria-hidden="true" /> Source and evidence</h3>
+                {item.source.length || item.evidenceIds.length ? <RecordSources record={item} /> : <p className="muted">No data</p>}
+                {item.inputRequestIds.length > 0 && (
+                  <div className={styles.provenanceGap}>
+                    <p className={styles.provenanceLabel}>Input needed</p>
+                    <WorkstreamInputs requestIds={item.inputRequestIds} className={styles.referenceList} />
+                  </div>
+                )}
+              </div>
             </article>
           ))}
         </div>}

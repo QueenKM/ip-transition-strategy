@@ -1,15 +1,22 @@
 import { useRef } from 'react'
 import { Link, useSearchParams } from 'react-router'
-import { ClipboardList, CreditCard, Truck, Zap } from 'lucide-react'
+import { Activity, Atom, Check, ClipboardList, CreditCard, Leaf, ScanLine, Truck, Zap } from 'lucide-react'
 import { DatumValue, EvidenceBadge, ServiceStatusChip } from '../components/evidence/Evidence'
 import { PageHeading } from '../components/layout/PageHeading'
 import { demoJourneys } from '../data/demo'
 import { stationServices, stations } from '../data/services'
 import { useDemoSession } from '../hooks/useDemoSession'
-import type { DemoEvent } from '../models/strategy'
+import type { DemoEvent, EnergyCarrier } from '../models/strategy'
 import styles from '../components/mobility/Mobility.module.css'
 
 const currency = new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' })
+const stepNames = ['DISCOVER', 'SELECT', 'REQUEST', 'CONFIRM'] as const
+const journeyVisuals = {
+  'Liquid fuel': { icon: Truck, tone: styles.fuelTone },
+  Electricity: { icon: Zap, tone: styles.electricTone },
+  Hydrogen: { icon: Atom, tone: styles.hydrogenTone },
+  Biomethane: { icon: Leaf, tone: styles.bioTone },
+} satisfies Record<EnergyCarrier, { icon: typeof Zap; tone: string }>
 
 export default function JourneyPage() {
   const [params] = useSearchParams()
@@ -21,7 +28,7 @@ export default function JourneyPage() {
 
   if (!service) {
     return (
-      <div className="page">
+      <div className={`page ${styles.mobilityPage}`}>
         <PageHeading eyebrow="Customer & fleet" title="Customer and Fleet Journey" />
         <section className={styles.empty}>
           <h2>Service unavailable in this demo catalogue</h2>
@@ -41,8 +48,9 @@ export default function JourneyPage() {
   const reservationDone = serviceEvents.some((event) => event.action === 'Reservation simulated')
   const paymentDone = serviceEvents.some((event) => event.action === 'Payment simulated')
   const isFleetRequest = service.journeyMode === 'Request'
-  const currentStep = requestDone || paymentDone || reservationDone ? 3 : 2
-  const JourneyIcon = isFleetRequest ? Truck : Zap
+  const completedJourney = requestDone || paymentDone
+  const currentStep = completedJourney || reservationDone ? 3 : 2
+  const { icon: JourneyIcon, tone } = journeyVisuals[service.carrier]
   const canSimulate = Boolean(journey && (
     (isFleetRequest && service.status === 'Pilot') ||
     (service.journeyMode === 'Reservation' && service.status === 'Available')
@@ -74,18 +82,19 @@ export default function JourneyPage() {
   }
 
   return (
-    <div className="page">
+    <div className={`page ${styles.mobilityPage}`}>
       <PageHeading
-        eyebrow="Customer & fleet"
+        eyebrow="Customer & Fleet"
         title="Customer and Fleet Journey"
         description="Follow an offer from discovery to a simulated action and see the signal it creates for strategy review."
       />
 
-      <div className={styles.journeyLead}>
+      <div className={`${styles.journeyLead} ${tone}`}>
         <div className={styles.journeyBadge}><JourneyIcon size={26} aria-hidden="true" /></div>
         <div>
-          <p className={styles.locationKind}>Illustrative scenario · {station?.title ?? 'Fictional location'}</p>
+          <p className={styles.locationKind}>ILLUSTRATIVE SCENARIO · FICTIONAL LOCATION</p>
           <h2>{service.title}</h2>
+          {station && <p className={styles.journeyLocation}>{station.title}</p>}
           <p>{journey?.useCase ?? service.description}</p>
         </div>
         <ServiceStatusChip status={service.status} />
@@ -93,18 +102,31 @@ export default function JourneyPage() {
 
       {journey && (
         <ol className={styles.journeySteps} aria-label="Journey stages">
-          {journey.steps.map((step, index) => (
-            <li key={step} aria-current={currentStep === index ? 'step' : undefined}>
-              <span className={styles.stepMarker} aria-hidden="true">{index + 1}</span>
-              {step}
-            </li>
-          ))}
+          {stepNames.map((step, index) => {
+            const complete = index < currentStep || completedJourney
+            return (
+              <li
+                key={step}
+                aria-current={currentStep === index ? 'step' : undefined}
+                data-complete={complete || undefined}
+              >
+                <span className={styles.stepMarker} aria-hidden="true">{complete ? <Check size={16} /> : index + 1}</span>
+                <div>
+                  <strong>{step}</strong>
+                  <span>{index === 0 ? 'Service catalogue' : journey.steps[index]}</span>
+                </div>
+              </li>
+            )
+          })}
         </ol>
       )}
 
       <div className={styles.journeyGrid}>
         <section className={styles.journeyPanel} aria-labelledby="service-review-title">
-          <h2 id="service-review-title">Review service</h2>
+          <div className={styles.receiptHeading}>
+            <ScanLine size={21} aria-hidden="true" />
+            <h2 id="service-review-title">Review service</h2>
+          </div>
           <EvidenceBadge type={service.evidenceType} />
           <dl className={styles.journeyFacts}>
             <div><dt>Vehicle fit</dt><dd>{service.compatibility}</dd></div>
@@ -157,11 +179,18 @@ export default function JourneyPage() {
 
           <div
             aria-live="polite"
-            className={stageMessage ? styles.outcome : undefined}
+            className={stageMessage ? `${styles.outcome} ${requestDone ? styles.signal : ''}` : undefined}
             ref={outcome}
             tabIndex={-1}
           >
+            {requestDone && (
+              <div className={styles.signalLabel}>
+                <Activity size={17} aria-hidden="true" />
+                <span>ILLUSTRATIVE DEMAND SIGNAL</span>
+              </div>
+            )}
             {stageMessage && <strong>{stageMessage}</strong>}
+            {requestDone && <p>The signal is available to the matching initiative in Strategy Control.</p>}
           </div>
 
           <div className={styles.journeyActions}>
@@ -175,7 +204,7 @@ export default function JourneyPage() {
               className={stageMessage || !activeAction ? 'button' : 'button button-secondary'}
               to={initiativeLink}
             >
-              View matching investment gate
+              {requestDone ? 'View strategic impact' : 'View matching investment gate'}
             </Link>
             {events.length > 0 && (
               <button className="button button-secondary" type="button" onClick={resetDemo}>
