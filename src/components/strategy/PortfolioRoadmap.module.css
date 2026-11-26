@@ -1,6 +1,7 @@
 .portfolioPage:global(.stack),
 .roadmapPage:global(.stack) {
-  gap: clamp(1rem, 2.2vw, 1.55rem);
+  gap: clamp(0.72rem, 1.2vw, 1.02rem);
+  padding-block-start: clamp(1.35rem, 2.25vw, 2rem);
   container-type: inline-size;
 }
 
@@ -17,7 +18,7 @@
   grid-template-columns: minmax(14rem, 1.65fr) repeat(3, minmax(0, 1fr));
   gap: 0.9rem;
   align-items: end;
-  padding: 1rem;
+  padding: 0.72rem 0.9rem;
 }
 
 .field {
@@ -137,15 +138,15 @@
   position: relative;
   display: grid;
   min-width: 0;
-  gap: 1rem;
-  padding: clamp(1rem, 2.2vw, 1.6rem);
+  gap: 0.7rem;
+  padding: clamp(0.95rem, 1.5vw, 1.3rem);
   border-top: 2px solid color-mix(in srgb, var(--priority, var(--action)) 66%, var(--line));
   overflow-wrap: anywhere;
 }
 
 .technologyIntro {
   display: grid;
-  gap: 0.62rem;
+  gap: 0.5rem;
 }
 
 .technologyIntro h2,
@@ -158,13 +159,7 @@
 
 .technologyIntro h2 { font-size: clamp(1.25rem, 2.3vw, 1.68rem); }
 
-.technologyIntro p,
 .phaseIntro p { margin: 0; }
-
-.technologyIntro p {
-  color: var(--muted);
-  font-size: 0.93rem;
-}
 
 .cardHeader {
   display: flex;
@@ -214,8 +209,9 @@
 }
 
 .metricGrid {
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  padding: 0.9rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  padding: 0.58rem 0.72rem;
   border: 1px solid var(--line);
   border-radius: 0.6rem;
   background: var(--canvas);
@@ -224,6 +220,7 @@
 .metricGrid > div { min-width: 0; }
 
 .metricGrid dt,
+.technologySignals dt,
 .detailGrid dt,
 .cardContext dt,
 .initiativeContext dt {
@@ -233,6 +230,7 @@
 }
 
 .metricGrid dd,
+.technologySignals dd,
 .detailGrid dd,
 .cardContext dd,
 .initiativeContext dd {
@@ -241,13 +239,34 @@
   line-height: 1.48;
 }
 
+.metricGrid dd {
+  font-size: 1rem;
+  font-weight: 680;
+}
+
+.technologySignals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin: 0;
+}
+
+.technologySignals .demandVisibility {
+  margin-block-start: 0.3rem;
+  color: var(--muted);
+  font-size: 0.77rem;
+}
+
 .rationale {
   margin: 0;
   padding-inline-start: 0.8rem;
   border-inline-start: 2px solid var(--priority, var(--action));
   color: var(--ink);
-  font-size: 0.93rem;
+  font-size: 0.86rem;
+  line-height: 1.48;
 }
+
+.rationale strong { margin-inline-end: 0.23rem; }
 
 .cardContext,
 .initiativeContext {
@@ -289,6 +308,23 @@
   transition: transform var(--transition);
 }
 
+.assessmentMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 570;
+}
+
+.assessmentDescription {
+  margin-block-end: 0.7rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.assessment .cardContext { margin-block-end: 0.85rem; }
+
 .assessment[open] > summary { margin-bottom: 0.5rem; }
 .assessment[open] > summary svg { transform: rotate(180deg); }
 
@@ -310,51 +346,66 @@
   scrollbar-color: var(--control-border) var(--canvas);
 }
 
-.comparison table { min-width: 55rem; }
+.comparison table { min-width: 74rem; }
+.comparison th,
+.comparison td { padding: 0.65rem 0.58rem; }
 .comparison thead th { background: var(--nav); }
-.comparison tbody th { min-width: 12rem; }
-.comparison tbody td:nth-child(5) { min-width: 14rem; }
-.comparison tbody td:nth-child(6) { min-width: 6.1rem; }
+.comparison tbody th { min-width: 11.7rem; }
+.comparison tbody td:nth-child(5),
+.comparison tbody td:nth-child(7) { min-width: 11.25rem; }
+.comparison tbody td:nth-child(6) { min-width: 5.1rem; }
+.comparison tbody td:nth-child(8) { min-width: 8.9rem; }
 .comparison tbody tr:last-child > * { border-bottom: 0; }
 
-.comparison tbody th > span {
-  display: table;
-  margin-top: 0.35rem;
+.tableEvidence { margin-block-start: 0.35rem; }
+
+.tableEvidence > span {
+  padding: 0.18rem 0.28rem;
+  font-size: 0.64rem;
+}
+
+.tableAction {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  gap: 0.24rem;
+  font-weight: 700;
+}
+
+.tableAction svg { flex: 0 0 auto; }
+
+.tableDependencies summary {
+  min-height: 2rem;
+  color: var(--action);
+  cursor: pointer;
 }
 
 .horizonPicker {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(0.25rem, 1vw, 0.65rem);
+  grid-template-columns: minmax(0, 1fr) minmax(4rem, 0.4fr) minmax(0, 1fr) minmax(4rem, 0.4fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0.18rem;
   min-width: 0;
-  padding: 0.45rem;
+  padding: 0.38rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--nav);
 }
 
-.horizonPicker::before {
-  position: absolute;
-  inset-inline: 1.4rem;
-  top: 1.63rem;
-  height: 1px;
-  background: var(--control-border);
-  content: '';
-  pointer-events: none;
-}
-
 .horizonChoice {
   position: relative;
   display: grid;
-  align-content: start;
-  gap: 0.2rem;
-  min-height: 5.45rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: center;
+  align-items: center;
+  gap: clamp(0.35rem, 1vw, 0.85rem);
+  min-height: 4.75rem;
   min-width: 0;
-  padding: 0.86rem clamp(0.5rem, 1.5vw, 1rem) 0.72rem;
-  border: 1px solid transparent;
-  border-radius: 0.65rem;
-  background: transparent;
+  padding: 0.57rem clamp(0.42rem, 1.05vw, 0.85rem);
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  background: var(--surface-sunken, var(--canvas));
   color: var(--ink);
   text-align: left;
   font: inherit;
@@ -371,19 +422,21 @@
   background: color-mix(in srgb, var(--action) 13%, transparent);
 }
 
-.horizonMarker {
-  width: 0.55rem;
-  height: 0.55rem;
-  margin-bottom: 0.23rem;
-  border: 2px solid var(--muted);
-  border-radius: 50%;
-  background: var(--nav);
+.phaseNumber {
+  color: var(--muted);
+  font-size: clamp(1.25rem, 2.7vw, 2.15rem);
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.07em;
+  line-height: 1;
 }
 
-.horizonChoice[aria-pressed='true'] .horizonMarker {
-  border-color: var(--action);
-  background: var(--action);
-  box-shadow: 0 0 0 0.27rem color-mix(in srgb, var(--nav) 70%, var(--action));
+.horizonChoice[aria-pressed='true'] .phaseNumber { color: var(--action); }
+
+.horizonLabel {
+  display: grid;
+  align-content: center;
+  gap: 0.28rem;
 }
 
 .horizonChoice small {
@@ -401,18 +454,54 @@
 
 .horizonChoice[aria-pressed='true'] strong { color: var(--action); }
 
+.horizonHandoff {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 0.25rem;
+  min-width: 0;
+  padding-inline: 0.25rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 650;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.horizonHandoff::before {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(50% - 0.57rem);
+  height: 1px;
+  background: var(--control-border);
+  content: '';
+}
+
+.handoffIcon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.52rem;
+  height: 1.52rem;
+  border: 1px solid var(--line);
+  border-radius: 0.38rem;
+  background: var(--nav);
+  color: var(--warm, #f5c76a);
+}
+
 .phasePanel {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: clamp(1rem, 2.7vw, 2.1rem);
+  padding: clamp(0.9rem, 1.8vw, 1.52rem);
   min-width: 0;
 }
 
 .phaseIntro {
   display: grid;
-  gap: 0.65rem;
-  padding-bottom: clamp(1.1rem, 2.4vw, 1.9rem);
+  gap: 0.45rem;
+  padding-bottom: clamp(0.8rem, 1.5vw, 1.08rem);
   animation: phase-appear 220ms ease-out both;
 }
 
@@ -422,17 +511,24 @@
 }
 
 .phaseIntro h2 {
-  max-width: 31ch;
-  font-size: clamp(1.65rem, 3.9vw, 2.7rem);
+  font-size: clamp(1.5rem, 2.55vw, 2rem);
   font-weight: 760;
   letter-spacing: -0.04em;
 }
 
+.phaseTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem 1rem;
+}
+
 .phaseIntro p { max-width: 72ch; }
-.phaseObjective { font-size: clamp(0.99rem, 1.55vw, 1.12rem); }
+.phaseObjective { color: var(--muted); font-size: 0.95rem; }
 
 .lanes {
-  --rail-space: clamp(3rem, 5.3vw, 4.25rem);
+  --rail-space: clamp(2.65rem, 4.3vw, 3.2rem);
   position: relative;
   display: grid;
   padding-inline-start: var(--rail-space);
@@ -440,8 +536,8 @@
 
 .lanes::before {
   position: absolute;
-  inset-block: 2rem 2.2rem;
-  inset-inline-start: 1.16rem;
+  inset-block: 1.4rem 1.9rem;
+  inset-inline-start: 1rem;
   width: 1px;
   background: color-mix(in srgb, var(--electric, #42d9e8) 52%, var(--line));
   content: '';
@@ -451,11 +547,12 @@
   --lane-color: var(--action);
   position: relative;
   display: grid;
-  grid-template-columns: minmax(8.5rem, 0.47fr) minmax(0, 1.53fr);
+  grid-template-columns: minmax(7.5rem, 0.46fr) minmax(0, 1.54fr) 9.4rem;
   align-items: start;
   min-width: 0;
-  gap: 0.75rem 1.15rem;
-  padding-block: 1.15rem;
+  min-height: 3.6rem;
+  gap: 0 0.8rem;
+  padding-block: 0.64rem;
   border-top: 1px solid var(--line);
 }
 
@@ -465,27 +562,87 @@
 .laneHeading {
   display: flex;
   align-items: center;
-  min-height: 2.35rem;
+  min-height: 2rem;
   color: var(--lane-color);
 }
 
 .laneHeading h3 {
-  font-size: clamp(1rem, 1.7vw, 1.2rem);
+  font-size: clamp(0.9rem, 1.4vw, 1.08rem);
   line-height: 1.24;
 }
 
 .laneIcon {
   position: absolute;
   inset-inline-start: calc(-1 * var(--rail-space));
-  top: 1.14rem;
+  top: 0.63rem;
   display: grid;
   place-items: center;
-  width: 2.38rem;
-  height: 2.38rem;
+  width: 2.04rem;
+  height: 2.04rem;
   border: 1px solid color-mix(in srgb, var(--lane-color) 52%, var(--line));
   border-radius: 0.67rem;
   background: var(--nav);
   color: var(--lane-color);
+}
+
+.laneSummary {
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.89rem;
+  line-height: 1.48;
+}
+
+.laneDetails {
+  grid-column: 2 / -1;
+  min-width: 0;
+}
+
+.laneDetails > summary,
+.phaseContext > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 2rem;
+  list-style: none;
+  cursor: pointer;
+  font-size: 0.81rem;
+  font-weight: 670;
+}
+
+.laneDetails > summary::-webkit-details-marker,
+.phaseContext > summary::-webkit-details-marker { display: none; }
+
+.laneDetails > summary::marker,
+.phaseContext > summary::marker { content: ''; }
+
+.laneDetails > summary {
+  position: absolute;
+  inset-inline-end: 0;
+  top: 0.61rem;
+  padding-inline: 0.54rem;
+  border: 1px solid var(--line);
+  border-radius: 0.42rem;
+  background: var(--surface-sunken, var(--canvas));
+}
+
+.laneDetails > summary:hover,
+.phaseContext > summary:hover { color: var(--action); }
+.laneDetails > summary svg,
+.phaseContext > summary svg { flex: 0 0 auto; color: var(--action); }
+.laneDetails[open] > summary svg,
+.phaseContext[open] > summary svg { transform: rotate(180deg); }
+
+.laneDetails[open] { padding-block-start: 0.62rem; }
+
+.phaseContext {
+  grid-column: 1 / -1;
+  padding-block: 0.64rem;
+}
+
+.phaseContext p {
+  margin-block-start: 0.4rem;
+  color: var(--muted);
 }
 
 .actions {
@@ -536,7 +693,6 @@
 
 .gateLane {
   --lane-color: var(--warm, #f5c76a);
-  padding-bottom: 0;
 }
 
 .gateContent {
@@ -683,13 +839,42 @@
 }
 
 @container roadmap (max-width: 55rem) {
-  .lane { grid-template-columns: minmax(0, 1fr); }
+  .lane { grid-template-columns: minmax(0, 1fr) 8.6rem; }
+
+  .laneSummary,
+  .laneDetails { grid-column: 1 / -1; }
 }
 
 @container roadmap (max-width: 37rem) {
   .phaseDetails,
   .actions,
   .gateLinks { grid-template-columns: 1fr; }
+
+  .horizonPicker { grid-template-columns: minmax(0, 1fr) 0.7rem minmax(0, 1fr) 0.7rem minmax(0, 1fr); }
+
+  .horizonChoice {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    align-items: start;
+  }
+
+  .horizonHandoff { padding: 0; }
+
+  .horizonHandoff::before { top: 50%; }
+
+  .handoffIcon,
+  .handoffLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@container portfolio (max-width: 26rem) {
+  .technologySignals { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,5 +1,5 @@
 import {
-  ChevronRight, CircleCheck, CircleHelp, CircleMinus, ClipboardCheck, GitBranch, Radio,
+  ChevronRight, CircleCheck, CircleHelp, CircleMinus, ClipboardCheck, FileCheck, GitBranch, Radio,
   ScanLine, ShieldAlert,
 } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
@@ -69,7 +69,6 @@ function CheckRow({ check, stage, decisive, blocked }: {
       <p className={styles.checkTag}>{check.required ? `Needed for ${stage} stage` : `Context for ${stage} review`}
         {decisive && ' · Drives recommendation'}
       </p>
-      <p>{check.rationale}</p>
       {check.finding.value === null && (
         <div className={styles.checkInputs}>
           <WorkstreamInputs requestIds={check.finding.inputRequestIds} className={styles.referenceList} />
@@ -78,6 +77,7 @@ function CheckRow({ check, stage, decisive, blocked }: {
       <details className={styles.disclosure}>
         <summary>Owner and next evidence</summary>
         <dl className={styles.factList}>
+          <div><dt>Evidence required</dt><dd>{check.rationale}</dd></div>
           <div><dt>Evidence owner</dt><dd>{check.owner}</dd></div>
           <div><dt>Next action</dt><dd>{check.nextAction}</dd></div>
           <div><dt>Treatment if unmet</dt><dd>{check.blockingIfUnmet ? 'Binding constraint' : 'Review readiness'}</dd></div>
@@ -101,7 +101,7 @@ function DemandSignals({ events }: { events: readonly DemoEvent[] }) {
         <h2 id="demand-signals">Demo demand signals</h2>
       </div>
       <EvidenceBadge type="ILLUSTRATIVE OR MODELLED VALUE" />
-      <p>Simulated activity from Customer &amp; Fleet. The gate uses the evidence checks shown alongside it.</p>
+      <p>Simulated activity from Customer &amp; Fleet for this initiative.</p>
       {events.length === 0 ? (
         <p className={styles.emptyInset}>No simulated activity for this initiative in this session.</p>
       ) : (
@@ -126,6 +126,38 @@ function DemandSignals({ events }: { events: readonly DemoEvent[] }) {
   )
 }
 
+function NextEvidence({ demand, demandLabel, checks, nextAction }: {
+  demand: GateCheck | undefined
+  demandLabel: string
+  checks: readonly GateCheck[]
+  nextAction: string
+}) {
+  return (
+    <section className={`panel ${styles.supportPanel} ${styles.nextEvidencePanel}`} aria-labelledby="next-evidence">
+      <div className={styles.supportHeading}>
+        <FileCheck size={19} aria-hidden="true" />
+        <h2 id="next-evidence">What is needed next?</h2>
+      </div>
+      <dl className={styles.caseDemand}>
+        <dt>{demandLabel}</dt>
+        <dd data-missing={!demand || demand.finding.value === null}>
+          {demand ? <DatumValue datum={demand.finding} /> : 'No data'}
+        </dd>
+      </dl>
+      {checks.length > 0 ? (
+        <ul className={styles.nextEvidenceList}>
+          {checks.map((check) => (
+            <li key={check.id}>
+              <strong>{check.title}</strong>
+              <p>{check.rationale}</p>
+            </li>
+          ))}
+        </ul>
+      ) : <p>{nextAction}</p>}
+    </section>
+  )
+}
+
 export default function InvestmentGatePage() {
   const [query, setQuery] = useSearchParams()
   const { events } = useDemoSession()
@@ -139,6 +171,10 @@ export default function InvestmentGatePage() {
     ?? availableGates[0]
   const decision = gate ? evaluateGate(gate) : null
   const initiativeEvents = events.filter((event) => event.initiativeId === initiative?.id)
+  const demandCheck = gate?.checks.find((check) => check.id === 'demandReadiness')
+  const nextChecks = decision && decision.recommendation !== 'Pilot' && decision.recommendation !== 'Scale'
+    ? gate?.checks.filter((check) => decision.decisiveCheckIds.includes(check.id)).slice(0, 2) ?? []
+    : []
   const linkedTechnologies = technologies.filter((item) => initiative?.technologyIds.includes(item.id))
   const linkedRisks = risks.filter((item) => initiative?.riskIds.includes(item.id) || gate?.riskIds.includes(item.id))
   const dependencies = [...(initiative?.dependencies ?? []), ...(gate?.dependencies ?? [])]
@@ -147,66 +183,79 @@ export default function InvestmentGatePage() {
   ) === index)
 
   return (
-    <div className="page">
-      <PageHeading
-        eyebrow="Strategy control"
-        title="Investment Decision Gate"
-        description="See the evidence that determines whether an initiative can proceed and the human approval it requires."
-      />
+    <div className={`page ${styles.gatePage}`}>
+      <div className={styles.gateHeader}>
+        <PageHeading
+          eyebrow="Strategy control"
+          title="Investment Decision Gate"
+          description="Review the evidence and human approval needed to proceed."
+        />
 
-      <section className={`panel ${styles.gateSelection}`} aria-label="Select an initiative and decision stage">
-        <label>
-          <span>Initiative</span>
-          <select value={initiative?.id ?? ''} onChange={(event) => setQuery({ initiative: event.target.value })}>
-            {initiatives.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
-          </select>
-        </label>
-        <label>
-          <span>Decision stage</span>
-          <select
-            value={gate?.stage ?? ''}
-            disabled={!availableGates.length}
-            onChange={(event) => {
-              if (initiative) setQuery({ initiative: initiative.id, stage: event.target.value.toLowerCase() })
-            }}
-          >
-            {!availableGates.length && <option value="">No data</option>}
-            {availableGates.map((item) => <option key={item.id} value={item.stage}>{item.stage}</option>)}
-          </select>
-        </label>
-      </section>
+        <section className={`panel ${styles.gateSelection}`} aria-label="Select an initiative and decision stage">
+          <label>
+            <span>Initiative</span>
+            <select value={initiative?.id ?? ''} onChange={(event) => setQuery({ initiative: event.target.value })}>
+              {initiatives.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
+            </select>
+          </label>
+          <label>
+            <span>Decision stage</span>
+            <select
+              value={gate?.stage ?? ''}
+              disabled={!availableGates.length}
+              onChange={(event) => {
+                if (initiative) setQuery({ initiative: initiative.id, stage: event.target.value.toLowerCase() })
+              }}
+            >
+              {!availableGates.length && <option value="">No data</option>}
+              {availableGates.map((item) => <option key={item.id} value={item.stage}>{item.stage}</option>)}
+            </select>
+          </label>
+        </section>
+      </div>
 
       {!initiative || !gate || !decision ? (
         <p className={`panel ${styles.empty}`}>No data for the selected initiative or decision stage.</p>
       ) : <>
-        <section className={styles.gateSummary} data-recommendation={decision.recommendation} aria-labelledby="gate-result" aria-live="polite">
-          <div className={styles.gateVerdict}>
-            <p className={styles.gateKicker}><ScanLine size={16} aria-hidden="true" /> Rule-based recommendation · {gate.stage} stage</p>
-            <div className={styles.recommendationHeading}>
-              <h2 id="gate-result">{initiative.title}</h2>
+        <div className={styles.gateSynopsis}>
+          <section className={styles.gateSummary} data-recommendation={decision.recommendation} aria-labelledby="gate-result" aria-live="polite">
+            <div className={styles.gateVerdict}>
+              <p className={styles.gateKicker}><ScanLine size={16} aria-hidden="true" /> Rule-based recommendation · {gate.stage} stage</p>
+              <div className={styles.recommendationHeading}>
+                <h2 id="gate-result">{initiative.title}</h2>
+              </div>
+              <div className={styles.gateDecision}>
+                <DecisionBadge recommendation={decision.recommendation} />
+              </div>
+              {decision.recommendation === 'Insufficient evidence' && (
+                <p className={styles.gatePrinciple}>Customer interest alone does not justify investment.</p>
+              )}
+              <p className={styles.gateReason}>{decision.reason}</p>
+              <div className={styles.nextAction}>
+                <ChevronRight size={18} aria-hidden="true" />
+                <p><strong>Next action</strong> {decision.nextAction}</p>
+              </div>
             </div>
-            <div className={styles.gateDecision}>
-              <DecisionBadge recommendation={decision.recommendation} />
+            <div className={styles.approval}>
+              <div className={styles.approvalHeading}><ClipboardCheck size={21} aria-hidden="true" /><strong>Human approval</strong></div>
+              <p className={styles.approvalPrinciple}>Digital supports the decision. Humans approve the investment.</p>
+              <dl className={styles.approvalFacts}>
+                <div><dt>Approval status</dt><dd data-missing={gate.approval.value === null}><DatumValue datum={gate.approval} /></dd></div>
+                <div><dt>Approval role</dt><dd>{gate.approvalRole}</dd></div>
+              </dl>
+              <p className={styles.conceptNote}>AI-assisted decision support is conceptual. This prototype applies the displayed rules.</p>
             </div>
-            {decision.recommendation === 'Insufficient evidence' && (
-              <p className={styles.gatePrinciple}>Customer interest alone does not justify investment.</p>
-            )}
-            <p className={styles.gateReason}>{decision.reason}</p>
-            <div className={styles.nextAction}>
-              <ChevronRight size={18} aria-hidden="true" />
-              <p><strong>Next action</strong> {decision.nextAction}</p>
-            </div>
+          </section>
+          <div className={styles.gateSignals}>
+            <DemandSignals events={initiativeEvents} />
+            <NextEvidence
+              demand={demandCheck}
+              demandLabel={initiative.id === 'road-hvo-pilot' ? 'Contracted demand' : 'Case demand readiness'}
+              checks={nextChecks}
+              nextAction={decision.nextAction}
+            />
           </div>
-          <div className={styles.approval}>
-            <div className={styles.approvalHeading}><ClipboardCheck size={21} aria-hidden="true" /><strong>Human approval</strong></div>
-            <p className={styles.approvalPrinciple}>Digital supports the decision. Humans approve the investment.</p>
-            <dl className={styles.approvalFacts}>
-              <div><dt>Approval status</dt><dd><DatumValue datum={gate.approval} /></dd></div>
-              <div><dt>Approval role</dt><dd>{gate.approvalRole}</dd></div>
-            </dl>
-            <p className={styles.conceptNote}>The AI-assisted strategy layer is a future concept. This prototype applies the rules shown below.</p>
-          </div>
-        </section>
+        </div>
 
         <div className={styles.gateLayout}>
           <div className={styles.gateMain}>
@@ -245,8 +294,6 @@ export default function InvestmentGatePage() {
           </div>
 
           <aside className={styles.gateAside} aria-label="Supporting evidence and dependencies">
-            <DemandSignals events={initiativeEvents} />
-
             <section className={`panel ${styles.supportPanel}`} aria-labelledby="gate-dependencies">
               <h2 id="gate-dependencies">Dependencies and maturity</h2>
               <DependencyList refs={uniqueDependencies} />

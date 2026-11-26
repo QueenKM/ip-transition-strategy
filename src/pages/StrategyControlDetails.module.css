@@ -1,23 +1,32 @@
 .content {
   display: grid;
-  gap: 1.25rem;
+  gap: 1.05rem;
+}
+
+.gatePage:global(.page),
+.evidencePage:global(.page) {
+  padding-block-start: clamp(1.4rem, 2.25vw, 2.1rem);
+}
+
+.evidenceTools {
+  display: grid;
+  gap: 0.65rem;
 }
 
 .evidenceLegend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1.25rem;
-  margin-bottom: 1.5rem;
-  padding: 0.85rem 1.15rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--nav);
+  max-width: min(100%, 48rem);
+  margin-left: auto;
+  font-size: 0.875rem;
 }
 
-.evidenceLegend > strong {
-  font-size: 0.875rem;
-  color: var(--muted);
+.evidenceLegend summary {
+  width: fit-content;
+  min-height: 36px;
+  margin-left: auto;
+  align-content: center;
+  color: var(--action);
+  cursor: pointer;
+  font-weight: 660;
 }
 
 .evidenceLegend ul {
@@ -25,8 +34,11 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.42rem 0.55rem;
-  margin: 0;
-  padding: 0;
+  margin: 0.25rem 0 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  background: var(--nav);
   list-style: none;
 }
 
@@ -34,7 +46,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 0.7rem;
-  margin: 0 0 1.5rem;
+  margin: 0 0 1rem;
   border-bottom: 1px solid var(--line);
 }
 
@@ -63,7 +75,7 @@
 }
 
 .filterBar,
-.gateSelection {
+.gateSelection:global(.panel) {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.53fr);
   gap: 1rem;
@@ -114,15 +126,21 @@
   pointer-events: none;
 }
 
-.searchInput input {
-  padding-left: 2.3rem;
+.filterBar .searchInput input[type="search"] {
+  padding-inline-start: 2.35rem;
 }
 
 .resultsLine {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  align-items: flex-start;
   gap: 0.5rem 1rem;
+}
+
+.resultsLine > p,
+.resultsLine > a {
+  min-height: 36px;
+  align-content: center;
 }
 
 .resultsLine p,
@@ -268,6 +286,11 @@
   margin-top: 0;
 }
 
+.leadSource {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
 .provenanceLabel {
   color: var(--muted);
   font-size: 0.875rem;
@@ -367,8 +390,37 @@
   margin: 0;
 }
 
+.gateHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(29rem, 0.9fr);
+  align-items: end;
+  gap: 1.15rem 1.65rem;
+  margin-bottom: 1.15rem;
+}
+
+.gateHeader :global(.page-heading) {
+  margin-bottom: 0;
+}
+
 .gateSelection {
-  margin-bottom: 1.3rem;
+  grid-template-columns: minmax(0, 1fr) minmax(8.25rem, 0.36fr);
+  gap: 0.65rem 0.8rem;
+  margin: 0;
+  padding: 0.8rem 0.9rem;
+}
+
+.gateSynopsis {
+  display: grid;
+  grid-template-columns: minmax(0, 1.58fr) minmax(23rem, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.gateSignals {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 1rem;
 }
 
 .gateSummary {
@@ -377,9 +429,10 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: clamp(1.25rem, 2.9vw, 2.25rem);
-  margin: 0 0 1.25rem;
-  padding: clamp(1.15rem, 3.2vw, 2.8rem);
+  align-content: center;
+  gap: clamp(1rem, 1.7vw, 1.45rem);
+  margin: 0;
+  padding: clamp(1rem, 2.35vw, 2rem);
   border: 1px solid color-mix(in srgb, var(--decision-accent) 52%, var(--line));
   border-radius: calc(var(--radius) + 0.12rem);
   background: radial-gradient(ellipse at 0 0, color-mix(in srgb, var(--decision-accent) 13%, transparent), transparent 68%), var(--nav);
@@ -412,7 +465,7 @@
 .gateVerdict {
   display: grid;
   min-width: 0;
-  gap: 0.7rem;
+  gap: 0.58rem;
 }
 
 .gateKicker {
@@ -431,21 +484,21 @@
 }
 
 .recommendationHeading h2 {
-  font-size: clamp(1.18rem, 2.4vw, 2rem);
+  font-size: clamp(1.18rem, 2.16vw, 1.84rem);
   line-height: 1.14;
   letter-spacing: -0.035em;
 }
 
 .gateDecision > span {
   display: block;
-  max-width: 16ch;
-  margin: 0.35rem 0;
+  max-width: 22ch;
+  margin: 0.25rem 0;
   padding: 0;
   border: none;
   border-radius: 0;
   background: transparent;
   color: var(--decision-accent);
-  font-size: clamp(2.15rem, 5.35vw, 5rem);
+  font-size: clamp(2.05rem, 4.6vw, 4.35rem);
   line-height: 0.99;
   letter-spacing: -0.062em;
   font-weight: 800;
@@ -490,8 +543,8 @@
   grid-template-columns: minmax(0, 1.35fr) minmax(13rem, 0.85fr);
   grid-template-areas: "label facts" "principle facts" "concept facts";
   align-items: start;
-  gap: 0.58rem clamp(1.25rem, 3.25vw, 2.7rem);
-  padding: clamp(1rem, 2.2vw, 1.55rem);
+  gap: 0.44rem clamp(1rem, 1.75vw, 1.6rem);
+  padding: clamp(0.85rem, 1.5vw, 1.25rem);
   border: 1px solid color-mix(in srgb, var(--action) 38%, var(--line));
   border-radius: var(--radius);
   background: var(--surface);
@@ -513,7 +566,7 @@
 .approvalPrinciple {
   grid-area: principle;
   color: var(--ink);
-  font-size: clamp(1.12rem, 1.85vw, 1.5rem);
+  font-size: clamp(1rem, 1.47vw, 1.3rem);
   line-height: 1.25;
   font-weight: 730;
   letter-spacing: -0.025em;
@@ -537,6 +590,11 @@
 .approvalFacts dd {
   margin: 0.13rem 0 0;
   overflow-wrap: anywhere;
+}
+
+.approvalFacts dd[data-missing="true"] span {
+  color: var(--warm);
+  font-weight: 720;
 }
 
 .conceptNote {
@@ -565,12 +623,81 @@
   color: var(--action);
 }
 
-.demandPanel {
+.demandPanel:global(.panel) {
+  gap: 0.53rem;
+  padding: clamp(0.95rem, 1.4vw, 1.25rem);
   border-top: 2px solid var(--illustrative, #a78bfa);
 }
 
 .demandPanel .supportHeading svg {
   color: var(--illustrative, #a78bfa);
+}
+
+.nextEvidencePanel:global(.panel) {
+  gap: 0.62rem;
+  padding: clamp(0.95rem, 1.4vw, 1.25rem);
+  border-top: 2px solid var(--electric);
+}
+
+.nextEvidencePanel .supportHeading svg {
+  color: var(--electric);
+}
+
+.caseDemand {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.9rem;
+  margin: 0;
+  padding: 0.46rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.42rem;
+  background: var(--surface-sunken);
+}
+
+.caseDemand dt {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 640;
+}
+
+.caseDemand dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 710;
+}
+
+.caseDemand dd span {
+  color: inherit;
+}
+
+.caseDemand dd[data-missing="true"] {
+  color: var(--warm);
+}
+
+.nextEvidenceList {
+  display: grid;
+  gap: 0.52rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nextEvidenceList > li {
+  padding-inline-start: 0.62rem;
+  border-inline-start: 2px solid var(--line);
+}
+
+.nextEvidenceList strong {
+  color: var(--ink);
+  font-size: 0.88rem;
+}
+
+.nextEvidenceList p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 .checkList,
@@ -598,6 +725,23 @@
   border: 1px solid var(--line);
   border-radius: 0.62rem;
   background: var(--nav);
+}
+
+.signalList > li {
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 0.7rem;
+  row-gap: 0.15rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.signalList > li > :nth-child(2) {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.signalList > li time {
+  grid-column: 2;
+  grid-row: 1;
 }
 
 .checkList > li {
@@ -632,6 +776,10 @@
 
 .checkList > li[data-state="review"] {
   --node-accent: var(--electric, #42d9e8);
+}
+
+.checkList > li[data-state="missing"] .checkStatus {
+  text-transform: uppercase;
 }
 
 .checkList > .decisiveCheck {
@@ -746,6 +894,17 @@
   }
 }
 
+@media (max-width: 980px) {
+  .gateHeader,
+  .gateSynopsis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gateSignals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 790px) {
   .gateLayout,
   .kpiGrid,
@@ -759,6 +918,10 @@
 }
 
 @media (max-width: 650px) {
+  .gateSignals {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .gateSummary .approval {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: "label" "principle" "facts" "concept";
@@ -773,7 +936,7 @@
 
 @media (max-width: 570px) {
   .filterBar,
-  .gateSelection {
+  .gateSelection:global(.panel) {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -794,6 +957,15 @@
   .factList > div,
   .gateAside .factList > div {
     grid-template-columns: 1fr;
+  }
+
+  .signalList > li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .signalList > li time {
+    grid-column: 1;
+    grid-row: 3;
   }
 }
 

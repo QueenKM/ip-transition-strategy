@@ -52,22 +52,24 @@ export default function ExecutiveDashboardPage() {
   }
 
   return (
-    <div className={`page ${styles.story}`}>
+    <div className={`page ${styles.story} ${styles.dashboard}`}>
       <section className={styles.hero} aria-labelledby="executive-heading">
         <img src={energyImage} className={styles.heroArt} alt="" fetchPriority="high" />
         <div className={styles.heroContent}>
           <p className={styles.heroMeta}>Part 7 · Academic strategy prototype</p>
           <h1 id="executive-heading" className={styles.heroTitle} tabIndex={-1}>
-            <span>From refinery</span>{' '}
-            <span>to multi-energy</span>{' '}
-            <span>mobility ecosystem</span>
+            Energy Transition <span>Intelligence</span>
           </h1>
-          <p className={styles.heroThesis}>{project.thesis}</p>
+          <p className={styles.heroSubtitle}>From refinery transformation to multi-energy mobility and evidence-led investment.</p>
           <div className={styles.heroLinks}>
             <Link className="button" to={routes.valueChain}>
               Explore the value chain <ArrowRight size={17} aria-hidden="true" />
             </Link>
             <Link className="button button-secondary" to={routes.roadmap}>View the roadmap</Link>
+            <details className={styles.heroDisclosure}>
+              <summary>Read the strategic thesis</summary>
+              <p>{project.thesis}</p>
+            </details>
           </div>
         </div>
         <p className={styles.heroCaption}>Illustrative scene</p>
@@ -138,9 +140,9 @@ export default function ExecutiveDashboardPage() {
               >
                 <span className={styles.pillarTop}>
                   <span className={styles.pillarIcon}><Icon size={22} aria-hidden="true" /></span>
+                  <strong>{card?.title ?? pillar.title}</strong>
                   <span className={styles.pillarNumber} aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
                 </span>
-                <strong>{card?.title ?? pillar.title}</strong>
                 <span className={styles.pillarSummary}>{pillar.description}</span>
               </button>
             )

@@ -1,5 +1,5 @@
 import {
-  ArrowDownRight, ArrowRight, Building2, ClipboardCheck, DatabaseZap, Factory, Gauge,
+  ArrowDownRight, ArrowRight, BrainCircuit, Building2, ClipboardCheck, DatabaseZap, Factory, Gauge,
   Layers3, Network, PlugZap, RotateCcw, ShieldCheck, Smartphone, Truck,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -73,7 +73,7 @@ const layers: readonly LandscapeLayer[] = [
     icon: ClipboardCheck,
     items: [
       { title: 'Management dashboard', description: 'Review portfolio risks, KPI boundaries and evidence at the decision gate.' },
-      { title: 'AI-assisted strategy layer', description: 'Conceptual support for evidence review.', tone: 'conceptual' },
+      { title: 'AI-assisted strategy layer', description: 'Conceptual evidence synthesis, scenario comparison and gap detection.', tone: 'conceptual' },
     ],
   },
   {
@@ -103,7 +103,10 @@ function ArchitectureLandscape() {
             <div className={styles.layerItems} data-wide={items.length === 1}>
               {items.map((item) => (
                 <div key={item.title} className={styles.layerItem} data-tone={item.tone}>
-                  <strong>{item.title}</strong>
+                  <strong>
+                    {item.tone === 'conceptual' && <BrainCircuit className={styles.conceptIcon} size={15} aria-hidden="true" />}
+                    {item.title}
+                  </strong>
                   <span>{item.description}</span>
                 </div>
               ))}

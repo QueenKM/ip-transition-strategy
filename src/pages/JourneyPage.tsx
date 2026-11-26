@@ -82,11 +82,11 @@ export default function JourneyPage() {
   }
 
   return (
-    <div className={`page ${styles.mobilityPage}`}>
+    <div className={`page ${styles.mobilityPage} ${styles.journeyPage}`}>
       <PageHeading
         eyebrow="Customer & Fleet"
         title="Customer and Fleet Journey"
-        description="Follow an offer from discovery to a simulated action and see the signal it creates for strategy review."
+        description="Simulate a fleet request or charging session, then inspect the signal in Strategy Control."
       />
 
       <div className={`${styles.journeyLead} ${tone}`}>
@@ -120,6 +120,27 @@ export default function JourneyPage() {
           })}
         </ol>
       )}
+
+      <div
+        aria-live="polite"
+        className={stageMessage ? `${styles.outcome} ${requestDone ? styles.signal : ''}` : undefined}
+        ref={outcome}
+        tabIndex={-1}
+      >
+        {requestDone ? (
+          <>
+            <div className={styles.signalText}>
+              <span className={styles.signalLabel}>
+                <Activity size={17} aria-hidden="true" />
+                ILLUSTRATIVE DEMAND SIGNAL CREATED
+              </span>
+              <strong>{stageMessage}</strong>
+              <p>Inspect the request and the evidence the initiative still needs.</p>
+            </div>
+            <Link className="button" to={initiativeLink}>View strategic impact</Link>
+          </>
+        ) : stageMessage && <strong>{stageMessage}</strong>}
+      </div>
 
       <div className={styles.journeyGrid}>
         <section className={styles.journeyPanel} aria-labelledby="service-review-title">
@@ -177,22 +198,6 @@ export default function JourneyPage() {
             <p>Review this service concept and its delivery prerequisites in Strategy Control.</p>
           )}
 
-          <div
-            aria-live="polite"
-            className={stageMessage ? `${styles.outcome} ${requestDone ? styles.signal : ''}` : undefined}
-            ref={outcome}
-            tabIndex={-1}
-          >
-            {requestDone && (
-              <div className={styles.signalLabel}>
-                <Activity size={17} aria-hidden="true" />
-                <span>ILLUSTRATIVE DEMAND SIGNAL</span>
-              </div>
-            )}
-            {stageMessage && <strong>{stageMessage}</strong>}
-            {requestDone && <p>The signal is available to the matching initiative in Strategy Control.</p>}
-          </div>
-
           <div className={styles.journeyActions}>
             {activeAction && (
               <button className="button" type="button" onClick={runAction}>
@@ -200,12 +205,14 @@ export default function JourneyPage() {
                 {actionLabel}
               </button>
             )}
-            <Link
-              className={stageMessage || !activeAction ? 'button' : 'button button-secondary'}
-              to={initiativeLink}
-            >
-              {requestDone ? 'View strategic impact' : 'View matching investment gate'}
-            </Link>
+            {!requestDone && (
+              <Link
+                className={stageMessage || !activeAction ? 'button' : 'button button-secondary'}
+                to={initiativeLink}
+              >
+                View matching investment gate
+              </Link>
+            )}
             {events.length > 0 && (
               <button className="button button-secondary" type="button" onClick={resetDemo}>
                 Reset demo

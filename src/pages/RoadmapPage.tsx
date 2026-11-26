@@ -1,4 +1,5 @@
-import { ArrowUpRight, Factory, Fuel, GitMerge, LaptopMinimal, ListChecks } from 'lucide-react'
+import { ArrowUpRight, ChevronDown, Factory, Fuel, GitMerge, LaptopMinimal, ListChecks } from 'lucide-react'
+import { Fragment } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { routes } from '../app/routes'
 import { EvidenceBadge, RecordSources } from '../components/evidence/Evidence'
@@ -22,6 +23,26 @@ const lanes = [
   { id: 'distribution', title: 'Distribution', Icon: Fuel },
   { id: 'digital', title: 'Digital platform', Icon: LaptopMinimal },
 ] as const
+
+const phaseSummaries: Record<Horizon, { refining: string; distribution: string; digital: string; handoff?: string }> = {
+  '0–3 years': {
+    refining: 'Set energy and emissions baselines. Screen heat recovery, qualified feedstocks and power procurement.',
+    distribution: 'Screen sites for public and depot charging, certified HVO fleet supply and station services.',
+    digital: 'Test discovery, fleet requests, reservations and payments. Define usage and downtime measures.',
+    handoff: 'Validate pilot results',
+  },
+  '3–7 years': {
+    refining: 'Test suitable process electrification. Use certified output and offtake to guide the product mix. Review process hydrogen.',
+    distribution: 'Scale proven HVO and charging where case evidence supports it. Assess contracted biomethane for compatible fleets.',
+    digital: 'Link service and fleet-account data. Use measured demand and utilisation in network and fuel supply decisions.',
+    handoff: 'Reassess investment case',
+  },
+  '7–15+ years': {
+    refining: 'Review residual emissions, qualified e-fuels and process hydrogen against available alternatives.',
+    distribution: 'Adjust capacity and station mix from measured utilisation. Review road hydrogen for contracted specialist fleets.',
+    digital: 'Use shared definitions to compare carrier demand, operations and investment. Reassess service formats as conditions change.',
+  },
+}
 
 function RoadmapList({ items }: { items: readonly string[] }) {
   if (!items.length) return <span className="muted">No data</span>
@@ -78,31 +99,48 @@ export default function RoadmapPage() {
       {phase ? (
         <>
           <div className={styles.horizonPicker} role="group" aria-label="Proposed time horizons">
-            {roadmap.map((option) => (
-              <button
-                type="button"
-                className={styles.horizonChoice}
-                key={option.id}
-                aria-pressed={option.id === phase.id}
-                aria-controls="roadmap-phase"
-                onClick={() => setSearchParams({ phase: option.id })}
-              >
-                <span className={styles.horizonMarker} aria-hidden="true" />
-                <strong>{option.timeHorizon}</strong>
-                <small>{horizonNames[option.timeHorizon]}</small>
-              </button>
-            ))}
+            {roadmap.map((option, index) => {
+              const handoff = phaseSummaries[option.timeHorizon].handoff
+              const nextDependsOnOption = roadmap[index + 1]?.dependencies.some(
+                ({ kind, id }) => kind === 'phase' && id === option.id,
+              )
+
+              return (
+                <Fragment key={option.id}>
+                  <button
+                    type="button"
+                    className={styles.horizonChoice}
+                    aria-pressed={option.id === phase.id}
+                    aria-controls="roadmap-phase"
+                    onClick={() => setSearchParams({ phase: option.id })}
+                  >
+                    <span className={styles.phaseNumber} aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                    <span className={styles.horizonLabel}>
+                      <strong>{option.timeHorizon}</strong>
+                      <small>{horizonNames[option.timeHorizon]}</small>
+                    </span>
+                  </button>
+                  {handoff && nextDependsOnOption && (
+                    <div className={styles.horizonHandoff}>
+                      <span className={styles.handoffIcon}><GitMerge size={17} aria-hidden="true" /></span>
+                      <span className={styles.handoffLabel}>{handoff}</span>
+                    </div>
+                  )}
+                </Fragment>
+              )
+            })}
           </div>
 
           <section id="roadmap-phase" className={styles.phasePanel} aria-labelledby="roadmap-phase-title">
             <header key={phase.id} className={styles.phaseIntro}>
-              <div className={styles.cardHeader}>
-                <span className="tag">{phase.status}</span>
-                <EvidenceBadge type={phase.evidenceType} />
+              <div className={styles.phaseTitleRow}>
+                <h2 id="roadmap-phase-title">{phase.title}</h2>
+                <div className={styles.cardHeader}>
+                  <span className="tag">{phase.status}</span>
+                  <EvidenceBadge type={phase.evidenceType} />
+                </div>
               </div>
-              <h2 id="roadmap-phase-title">{phase.title}</h2>
               <p className={styles.phaseObjective}>{phase.objective}</p>
-              {phase.description !== phase.objective && <p className="muted">{phase.description}</p>}
             </header>
 
             <div className={styles.lanes}>
@@ -112,35 +150,49 @@ export default function RoadmapPage() {
                     <span className={styles.laneIcon}><Icon size={20} aria-hidden="true" /></span>
                     <h3 id={`roadmap-lane-${id}`}>{title}</h3>
                   </div>
+                  <p className={styles.laneSummary}>{phaseSummaries[phase.timeHorizon][id]}</p>
                   {phase.actions[id].length ? (
-                    <ul className={styles.actions}>
-                      {phase.actions[id].map(({ initiativeId, action }) => {
-                        const { title: initiativeTitle, href } = describeEntity({ kind: 'initiative', id: initiativeId })
+                    <details className={styles.laneDetails} key={`${phase.id}-${id}`}>
+                      <summary>
+                        <span>{phase.actions[id].length} actions<span className="sr-only"> for {title}</span></span>
+                        <ChevronDown size={16} aria-hidden="true" />
+                      </summary>
+                      <ul className={styles.actions}>
+                        {phase.actions[id].map(({ initiativeId, action }) => {
+                          const { title: initiativeTitle, href } = describeEntity({ kind: 'initiative', id: initiativeId })
 
-                        return (
-                          <li key={`${initiativeId}-${action}`}>
-                            {href ? (
-                              <Link className={styles.actionLink} to={href}>
-                                {initiativeTitle} <ArrowUpRight size={15} aria-hidden="true" />
-                              </Link>
-                            ) : <strong>{initiativeTitle}</strong>}
-                            <p>{action}</p>
-                          </li>
-                        )
-                      })}
-                    </ul>
+                          return (
+                            <li key={`${initiativeId}-${action}`}>
+                              {href ? (
+                                <Link className={styles.actionLink} to={href}>
+                                  {initiativeTitle} <ArrowUpRight size={15} aria-hidden="true" />
+                                </Link>
+                              ) : <strong>{initiativeTitle}</strong>}
+                              <p>{action}</p>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </details>
                   ) : <span className="muted">No data</span>}
                 </section>
               ))}
               <section className={`${styles.lane} ${styles.gateLane}`} data-lane="gates" aria-labelledby="roadmap-gates">
                 <div className={styles.laneHeading}>
                   <span className={styles.laneIcon}><GitMerge size={20} aria-hidden="true" /></span>
-                  <h3 id="roadmap-gates">Investment gates and review triggers</h3>
+                  <h3 id="roadmap-gates">Investment gates</h3>
                 </div>
-                <div className={styles.gateContent}>
-                  <RoadmapList items={phase.reviewTriggers} />
-                  <PhaseGateLinks ids={phase.gateIds} />
-                </div>
+                <p className={styles.laneSummary}>{phase.reviewTriggers[0] ?? 'No data'}</p>
+                <details className={styles.laneDetails} key={phase.id}>
+                  <summary>
+                    <span>{phase.gateIds.length} gate reviews</span>
+                    <ChevronDown size={16} aria-hidden="true" />
+                  </summary>
+                  <div className={styles.gateContent}>
+                    <RoadmapList items={phase.reviewTriggers.slice(1)} />
+                    <PhaseGateLinks ids={phase.gateIds} />
+                  </div>
+                </details>
               </section>
             </div>
           </section>
@@ -165,6 +217,12 @@ export default function RoadmapPage() {
               <StrategyRecordLinks records={phase.kpiIds.map((id) => ({ kind: 'kpi', id }))} />
               <RecordSources record={phase} />
             </section>
+            {phase.description !== phase.objective && (
+              <details className={`panel ${styles.phaseContext}`} key={phase.id}>
+                <summary>Phase context <ChevronDown size={16} aria-hidden="true" /></summary>
+                <p>{phase.description}</p>
+              </details>
+            )}
           </div>
         </>
       ) : <p className="panel">No data</p>}

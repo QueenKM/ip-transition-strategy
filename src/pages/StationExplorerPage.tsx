@@ -126,7 +126,10 @@ export default function StationExplorerPage() {
                   <h2 id={station.id}>{station.title}</h2>
                   <p>{station.description}</p>
                 </div>
-                <span className={styles.fictionLabel}>FICTIONAL LOCATION</span>
+                <div className={styles.locationEvidence} role="group" aria-label="Location scope">
+                  <span>ILLUSTRATIVE SCENARIO</span>
+                  <span>FICTIONAL LOCATION</span>
+                </div>
               </div>
               <div className={styles.offerGrid}>
                 {stationOffers.map((service) => (
@@ -149,24 +152,18 @@ function ServiceCard({ service }: { service: StationService }) {
   return (
     <article className={`${styles.offer} ${tone}`}>
       <div className={styles.offerTop}>
-        <span className={styles.offerIcon}><CarrierIcon size={20} aria-hidden="true" /></span>
+        <div className={styles.offerIdentity}>
+          <span className={styles.offerIcon}><CarrierIcon size={20} aria-hidden="true" /></span>
+          <div className={styles.offerMeta}>
+            <span className={styles.offerCarrier}>{service.carrier}</span>
+            <span><AudienceIcon size={15} aria-hidden="true" />{useCase}</span>
+          </div>
+        </div>
         <ServiceStatusChip status={service.status} />
-      </div>
-      <div className={styles.offerMeta}>
-        <span className={styles.offerCarrier}>{service.carrier}</span>
-        <span><AudienceIcon size={15} aria-hidden="true" />{useCase}</span>
       </div>
       <h3>{service.title}</h3>
       <p>{service.description}</p>
-      <dl className={styles.offerFacts}>
-        <div><dt>Price basis</dt><dd><DatumValue datum={service.priceBasis} /></dd></div>
-        {service.chargerPowerKw && (
-          <div><dt>Connector power</dt><dd><DatumValue datum={service.chargerPowerKw} unit="kW" /></dd></div>
-        )}
-        <div><dt>Vehicle fit</dt><dd>{service.compatibility}</dd></div>
-      </dl>
       <div className={styles.offerActions}>
-        <EvidenceBadge type={service.evidenceType} />
         <Link
           className={service.journeyMode === 'Explore only' ? 'button button-secondary' : 'button'}
           to={`/mobility/journey?service=${service.id}`}
@@ -175,6 +172,16 @@ function ServiceCard({ service }: { service: StationService }) {
             : service.journeyMode === 'Reservation' ? 'Open charging demo'
               : 'Review service'}
         </Link>
+      </div>
+      <dl className={styles.offerFacts}>
+        <div><dt>Price basis</dt><dd><DatumValue datum={service.priceBasis} /></dd></div>
+        {service.chargerPowerKw && (
+          <div><dt>Connector power</dt><dd><DatumValue datum={service.chargerPowerKw} unit="kW" /></dd></div>
+        )}
+        <div><dt>Vehicle fit</dt><dd>{service.compatibility}</dd></div>
+      </dl>
+      <div className={styles.offerEvidence}>
+        <EvidenceBadge type={service.evidenceType} />
       </div>
     </article>
   )

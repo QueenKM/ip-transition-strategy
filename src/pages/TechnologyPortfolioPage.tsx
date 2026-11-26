@@ -31,6 +31,7 @@ function PriorityChip({ priority }: { priority: PortfolioPriority }) {
 function TechnologyCard({ technology }: { technology: TechnologyOption }) {
   const relatedInitiatives = initiatives.filter(({ id }) => technology.initiativeIds.includes(id))
   const relatedRisks = risks.filter(({ id }) => technology.riskIds.includes(id))
+  const demandVisibility = technology.ratings.demandVisibility
 
   return (
     <article className={`panel ${styles.technologyCard}`} data-priority={technology.status} aria-labelledby={`${technology.id}-title`}>
@@ -40,13 +41,8 @@ function TechnologyCard({ technology }: { technology: TechnologyOption }) {
           <EvidenceBadge type={technology.evidenceType} />
         </div>
         <h2 id={`${technology.id}-title`}>{technology.title}</h2>
-        <p>{technology.description}</p>
       </header>
       <dl className={styles.metricGrid}>
-        <div>
-          <dt>Industry maturity</dt>
-          <dd><DatumValue datum={technology.industryMaturity} /></dd>
-        </div>
         <div>
           <dt>IP readiness</dt>
           <dd><DatumValue datum={technology.ipReadiness} /></dd>
@@ -60,25 +56,62 @@ function TechnologyCard({ technology }: { technology: TechnologyOption }) {
           <dd><DatumValue datum={technology.investmentIntensity} /></dd>
         </div>
       </dl>
-      <p className={styles.rationale}>{technology.rationale}</p>
-      <dl className={styles.cardContext}>
+      <dl className={styles.technologySignals}>
         <div>
-          <dt>Dependencies</dt>
-          <dd><StrategyRecordLinks records={technology.dependencies} /></dd>
+          <dt>Industry maturity</dt>
+          <dd><DatumValue datum={technology.industryMaturity} /></dd>
         </div>
         <div>
-          <dt>Key risks</dt>
+          <dt>Demand driver</dt>
           <dd>
-            {relatedRisks.length ? (
-              <ul className={styles.list}>
-                {relatedRisks.map((risk) => <li key={risk.id}>{risk.title}</li>)}
-              </ul>
-            ) : 'No data'}
+            {relatedInitiatives.length > 0 ? relatedInitiatives.map((initiative) => (
+              <p key={initiative.id}>{initiative.demandDriver}</p>
+            )) : 'No data'}
+          </dd>
+          <dd className={styles.demandVisibility}>
+            Demand visibility · {demandVisibility ? <DatumValue datum={demandVisibility} /> : 'No data'}
           </dd>
         </div>
       </dl>
+      <p className={styles.rationale}><strong>Next action</strong> {technology.rationale}</p>
+      <div className={styles.cardAction}>
+        {relatedInitiatives.map((initiative) => (
+          <Link
+            className="button button-secondary"
+            key={initiative.id}
+            to={`${routes.gate}?initiative=${encodeURIComponent(initiative.id)}`}
+            aria-label={`Review investment gate for ${initiative.title}`}
+          >
+            {relatedInitiatives.length > 1 ? initiative.title : 'Review investment gate'}
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </Link>
+        ))}
+      </div>
       <details className={styles.assessment}>
-        <summary>Assessment and evidence <ChevronDown size={17} aria-hidden="true" /></summary>
+        <summary aria-label="Assessment and evidence" aria-describedby={technology.dependencies.length ? `${technology.id}-dependency-count` : undefined}>
+          <span>Assessment and evidence</span>
+          <span className={styles.assessmentMeta}>
+            {technology.dependencies.length > 0 && <span id={`${technology.id}-dependency-count`}>{technology.dependencies.length} dependencies</span>}
+            <ChevronDown size={17} aria-hidden="true" />
+          </span>
+        </summary>
+        <p className={styles.assessmentDescription}>{technology.description}</p>
+        <dl className={styles.cardContext}>
+          <div>
+            <dt>Dependencies</dt>
+            <dd><StrategyRecordLinks records={technology.dependencies} /></dd>
+          </div>
+          <div>
+            <dt>Key risks</dt>
+            <dd>
+              {relatedRisks.length ? (
+                <ul className={styles.list}>
+                  {relatedRisks.map((risk) => <li key={risk.id}>{risk.title}</li>)}
+                </ul>
+              ) : 'No data'}
+            </dd>
+          </div>
+        </dl>
         <dl className={styles.detailGrid}>
           {ratingLabels.map(([key, label]) => {
             const rating = technology.ratings[key]
@@ -97,7 +130,6 @@ function TechnologyCard({ technology }: { technology: TechnologyOption }) {
         </dl>
         {relatedInitiatives.map((initiative) => (
           <dl className={styles.initiativeContext} key={initiative.id}>
-            <div><dt>Demand driver</dt><dd>{initiative.demandDriver}</dd></div>
             <div><dt>Potential asset fit</dt><dd>{initiative.assetFit}</dd></div>
             <div><dt>Investment logic</dt><dd>{initiative.businessRationale}</dd></div>
             <div><dt>Refining–Distribution link</dt><dd>{initiative.integration}</dd></div>
@@ -105,21 +137,6 @@ function TechnologyCard({ technology }: { technology: TechnologyOption }) {
         ))}
         <RecordSources record={technology} />
       </details>
-      {relatedInitiatives.length > 0 && (
-        <div className={styles.cardAction}>
-          {relatedInitiatives.map((initiative) => (
-            <Link
-              className="button button-secondary"
-              key={initiative.id}
-              to={`${routes.gate}?initiative=${encodeURIComponent(initiative.id)}`}
-              aria-label={`Review investment gate for ${initiative.title}`}
-            >
-              {relatedInitiatives.length > 1 ? initiative.title : 'Review investment gate'}
-              <ArrowUpRight size={16} aria-hidden="true" />
-            </Link>
-          ))}
-        </div>
-      )}
     </article>
   )
 }
@@ -134,27 +151,61 @@ function PortfolioComparison({ options }: { options: readonly TechnologyOption[]
             <th scope="col">Technology</th>
             <th scope="col">Priority</th>
             <th scope="col">Proposed horizon</th>
-            <th scope="col">Indicative investment intensity</th>
+            <th scope="col">Investment intensity</th>
             <th scope="col">Industry maturity</th>
             <th scope="col">IP readiness</th>
-            <th scope="col">Implementation risk</th>
+            <th scope="col">Demand driver</th>
+            <th scope="col">Dependencies and risk</th>
+            <th scope="col">Investment gate</th>
           </tr>
         </thead>
         <tbody>
-          {options.map((technology) => (
-            <tr key={technology.id}>
-              <th scope="row">
-                {technology.title}
-                <EvidenceBadge type={technology.evidenceType} />
-              </th>
-              <td><PriorityChip priority={technology.status} /></td>
-              <td>{technology.timeHorizon ?? 'No data'}</td>
-              <td><DatumValue datum={technology.investmentIntensity} /></td>
-              <td><DatumValue datum={technology.industryMaturity} /></td>
-              <td><DatumValue datum={technology.ipReadiness} /></td>
-              <td>{technology.ratings.implementationRisk ? <DatumValue datum={technology.ratings.implementationRisk} /> : 'No data'}</td>
-            </tr>
-          ))}
+          {options.map((technology) => {
+            const relatedInitiatives = initiatives.filter(({ id }) => technology.initiativeIds.includes(id))
+
+            return (
+              <tr key={technology.id}>
+                <th scope="row">
+                  {technology.title}
+                  <div className={styles.tableEvidence}><EvidenceBadge type={technology.evidenceType} /></div>
+                </th>
+                <td><PriorityChip priority={technology.status} /></td>
+                <td>{technology.timeHorizon ?? 'No data'}</td>
+                <td><DatumValue datum={technology.investmentIntensity} /></td>
+                <td><DatumValue datum={technology.industryMaturity} /></td>
+                <td><DatumValue datum={technology.ipReadiness} /></td>
+                <td>
+                  {relatedInitiatives.length > 0 ? relatedInitiatives.map((initiative) => (
+                    <p key={initiative.id}>{initiative.demandDriver}</p>
+                  )) : 'No data'}
+                </td>
+                <td>
+                  <p>
+                    <span className="muted">Implementation risk · </span>
+                    {technology.ratings.implementationRisk ? <DatumValue datum={technology.ratings.implementationRisk} /> : 'No data'}
+                  </p>
+                  {technology.dependencies.length > 0 && (
+                    <details className={styles.tableDependencies}>
+                      <summary>{technology.dependencies.length} dependencies</summary>
+                      <StrategyRecordLinks records={technology.dependencies} />
+                    </details>
+                  )}
+                </td>
+                <td>
+                  {relatedInitiatives.map((initiative) => (
+                    <Link
+                      className={styles.tableAction}
+                      key={initiative.id}
+                      to={`${routes.gate}?initiative=${encodeURIComponent(initiative.id)}`}
+                      aria-label={`Review investment gate for ${initiative.title}`}
+                    >
+                      Review <ArrowUpRight size={15} aria-hidden="true" />
+                    </Link>
+                  ))}
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>

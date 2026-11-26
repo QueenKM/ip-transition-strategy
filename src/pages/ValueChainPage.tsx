@@ -1,6 +1,6 @@
 import {
-  ArrowDownRight, ArrowRight, BarChart3, ClipboardCheck, Droplet, Factory, Fuel, MapPin,
-  Network, Truck, Users, Zap,
+  ArrowDown, ArrowDownRight, ArrowRight, BarChart3, ClipboardCheck, Droplet, Factory, Fuel,
+  ListChecks, MapPin, Network, Truck, Users, Zap,
 } from 'lucide-react'
 import { Link } from 'react-router'
 import { routes } from '../app/routes'
@@ -13,12 +13,12 @@ const flowTracks = [
   {
     title: 'Liquid fuel pathway', Icon: Droplet, tone: 'liquid',
     stages: [
-      { label: 'Feedstock / Supply', Icon: Droplet },
+      { label: 'Feedstock/Supply', Icon: Droplet },
       { label: 'Refining', Icon: Factory },
       { label: 'Qualified Product', Icon: Fuel },
       { label: 'Logistics', Icon: Truck },
-      { label: 'Station / Fleet', Icon: MapPin },
-      { label: 'Customer Demand Signal', Icon: BarChart3 },
+      { label: 'Station/Fleet', Icon: MapPin },
+      { label: 'Customer', Icon: Users },
     ],
   },
   {
@@ -27,10 +27,15 @@ const flowTracks = [
       { label: 'Grid', Icon: Network },
       { label: 'Site', Icon: MapPin },
       { label: 'Charger', Icon: Zap },
-      { label: 'Customer/Fleet', Icon: Users },
-      { label: 'Utilisation Signal', Icon: BarChart3 },
+      { label: 'Driver/Fleet', Icon: Users },
     ],
   },
+] as const
+
+const decisionFlow = [
+  { label: 'Demand & Operating Evidence', detail: 'Volumes, demand signals, utilisation and service availability.', Icon: BarChart3, to: routes.evidence },
+  { label: 'Strategy Control', detail: 'Review performance, dependencies and priorities across both pathways.', Icon: ClipboardCheck, to: routes.strategy },
+  { label: 'Investment Gate', detail: 'Review evidence against decision criteria before human approval.', Icon: ListChecks, to: routes.gate },
 ] as const
 
 export default function ValueChainPage() {
@@ -39,7 +44,7 @@ export default function ValueChainPage() {
       <PageHeading
         title="Integrated Value Chain"
         eyebrow="Strategy control"
-        description="Trace certified fuels from refining and procurement, and charging from grid supply. Both routes meet in the customer and fleet experience and return evidence to investment review."
+        description="Follow certified fuels from refining and procurement, and charging from grid supply. Demand and operating evidence from both pathways informs investment review."
       >
         <EvidenceBadge type="STRATEGIC RECOMMENDATION" />
       </PageHeading>
@@ -54,26 +59,34 @@ export default function ValueChainPage() {
               <article className={`panel ${styles.flowTrack}`} data-tone={tone} key={tone}>
                 <h3><Icon size={20} aria-hidden="true" /> {title}</h3>
                 <ol>
-                  {stages.map(({ label, Icon: StageIcon }, index) => (
-                    <li key={label}>
-                      {index > 0 && <ArrowRight className={styles.trackArrow} size={14} aria-hidden="true" />}
-                      <StageIcon size={23} aria-hidden="true" />
-                      <span>{label}</span>
-                    </li>
-                  ))}
+                  {stages.map(({ label, Icon: StageIcon }, index) => {
+                    const [primary, qualifier] = label.split('/')
+                    return (
+                      <li key={label}>
+                        {index > 0 && <ArrowRight className={styles.trackArrow} size={14} aria-hidden="true" />}
+                        <StageIcon size={23} aria-hidden="true" />
+                        <span>{primary}{qualifier && <>/<wbr />{qualifier}</>}</span>
+                      </li>
+                    )
+                  })}
                 </ol>
               </article>
             ))}
           </div>
           <div className={styles.mergeConnector} aria-hidden="true"><ArrowRight size={25} /></div>
-          <article className={`panel ${styles.mergeTarget}`} aria-labelledby="strategy-control-heading">
-            <ClipboardCheck size={27} aria-hidden="true" />
-            <h3 id="strategy-control-heading">Strategy Control</h3>
-            <p>Combine demand and utilisation with supply, operating and investment evidence for human review.</p>
-            <Link className={styles.textLink} to={routes.gate}>
-              Review investment gates <ArrowRight size={16} aria-hidden="true" />
-            </Link>
-          </article>
+          <ol className={styles.decisionFlow} aria-label="Decision pathway shared by both energy routes">
+            {decisionFlow.map(({ label, detail, Icon, to }, index) => (
+              <li className={styles.decisionStep} key={label}>
+                {index > 0 && <ArrowDown className={styles.decisionArrow} size={15} aria-hidden="true" />}
+                <Link to={to}>
+                  <Icon size={19} aria-hidden="true" />
+                  {label}
+                  <ArrowRight size={15} aria-hidden="true" />
+                </Link>
+                <p>{detail}</p>
+              </li>
+            ))}
+          </ol>
         </div>
         <div className={styles.laneNotes}>
           {valueChains.map((chain) => (

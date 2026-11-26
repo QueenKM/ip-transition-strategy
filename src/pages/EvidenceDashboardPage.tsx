@@ -6,8 +6,9 @@ import { WorkstreamInputs } from '../components/evidence/WorkstreamInputs'
 import { PageHeading } from '../components/layout/PageHeading'
 import { evidence } from '../data/evidence'
 import { kpis } from '../data/kpis'
+import { sources } from '../data/sources'
 import { teamContributions } from '../data/team'
-import type { EvidenceType, KPI, TeamContribution } from '../models/strategy'
+import type { EvidenceType, KPI, SourceRef, TeamContribution } from '../models/strategy'
 import styles from './StrategyControlDetails.module.css'
 
 const tabs = [
@@ -46,6 +47,18 @@ function ProvenanceLinks({ ids, onNavigate }: { ids: readonly string[]; onNaviga
         </li>
       ))}
     </ul>
+  )
+}
+
+function LeadSource({ reference }: { reference: SourceRef | undefined }) {
+  const source = sources.find((entry) => entry.id === reference?.sourceId)
+  if (!source) return null
+
+  return (
+    <p className={styles.leadSource}>
+      {source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a> : source.title}
+      {reference?.locator && <span> · {reference.locator}</span>}
+    </p>
   )
 }
 
@@ -112,13 +125,7 @@ function TeamCard({ item, onNavigate }: { item: TeamContribution; onNavigate: ()
         </div>
         <EvidenceBadge type={item.evidenceType} />
       </div>
-      <p>{item.description}</p>
-      <dl className={styles.factList}>
-        <div><dt>Owner</dt><dd>{item.owner ?? '[OWNER TBD]'}</dd></div>
-        <div><dt>Input received</dt><dd>{item.inputReceived ? 'Yes' : 'No'}</dd></div>
-        <div><dt>Date received</dt><dd>{item.dateReceived ?? 'No data'}</dd></div>
-        <div><dt>Status</dt><dd>{item.status}</dd></div>
-      </dl>
+      {!openRequests.some((request) => request.requirement === item.description) && <p>{item.description}</p>}
       {openRequests.length > 0 && (
         <div className={styles.openInput}>
           <strong>[INPUT REQUIRED FROM WORKSTREAM {item.workstream}]</strong>
@@ -127,6 +134,12 @@ function TeamCard({ item, onNavigate }: { item: TeamContribution; onNavigate: ()
           </ul>
         </div>
       )}
+      <dl className={styles.factList}>
+        <div><dt>Owner</dt><dd>{item.owner ?? '[OWNER TBD]'}</dd></div>
+        <div><dt>Input received</dt><dd>{item.inputReceived ? 'Yes' : 'No'}</dd></div>
+        <div><dt>Date received</dt><dd>{item.dateReceived ?? 'No data'}</dd></div>
+        <div><dt>Status</dt><dd>{item.status}</dd></div>
+      </dl>
       {receivedRequests.length > 0 && <details className={styles.disclosure}>
         <summary>Submitted inputs</summary>
         <dl className={styles.factList}>
@@ -176,7 +189,8 @@ export default function EvidenceDashboardPage() {
     item.id,
     [item.title, item.definition, item.unit, item.owner ?? '', item.current.value?.toString() ?? 'No data'],
     item.current.evidenceType,
-  ))
+  )).sort((left, right) => Number(right.current.evidenceType === 'VERIFIED FACT')
+    - Number(left.current.evidenceType === 'VERIFIED FACT'))
   const visibleEvidence = evidence.filter((item) => matches(
     item.id, [item.id, item.title, item.description, item.scope], item.evidenceType,
   ))
@@ -186,21 +200,12 @@ export default function EvidenceDashboardPage() {
   const count = activeTab === 'kpis' ? visibleKpis.length : activeTab === 'evidence' ? visibleEvidence.length : visibleTeams.length
 
   return (
-    <div className="page">
+    <div className={`page ${styles.evidencePage}`}>
       <PageHeading
         eyebrow="Strategy control"
         title="KPI and Evidence Dashboard"
-        description="Review the measurement boundary, the source behind a claim and the team input needed for the next decision."
+        description="Check what each metric measures, where it came from and what evidence is still needed."
       />
-
-      <section className={styles.evidenceLegend} aria-label="Evidence categories">
-        <strong>Evidence categories</strong>
-        <ul>
-          {evidenceTypes.map((type) => (
-            <li key={type}><EvidenceBadge type={type} /></li>
-          ))}
-        </ul>
-      </section>
 
       <nav className={styles.tabs} aria-label="Evidence dashboards">
         {tabs.map(({ id, title, icon: Icon }) => (
@@ -218,25 +223,35 @@ export default function EvidenceDashboardPage() {
       </nav>
 
       <section className={styles.content} aria-label={tabs.find((tab) => tab.id === activeTab)?.title}>
-        {!focus && <div className={styles.filterBar}>
-          <label className={styles.searchField}>
-            <span>Find a record</span>
-            <span className={styles.searchInput}>
-              <Search size={18} aria-hidden="true" />
-              <input value={search} onChange={(event) => setSearch(event.target.value)} type="search" placeholder="Search records" />
-            </span>
-          </label>
-          <label>
-            <span>Evidence type</span>
-            <select value={filter} onChange={(event) => setFilter(dataType(event.target.value))}>
-              <option value="all">All evidence types</option>
-              {evidenceTypes.map((type) => <option key={type} value={type}>{type === 'NO DATA' ? 'No data' : type}</option>)}
-            </select>
-          </label>
-        </div>}
-        <div className={styles.resultsLine}>
-          <p aria-live="polite" className="muted">{count} {count === 1 ? 'record' : 'records'}</p>
-          {focus && <Link to={`/strategy/evidence?tab=${activeTab}`} onClick={clearFilters}>Show all records</Link>}
+        <div className={styles.evidenceTools}>
+          {!focus && <div className={styles.filterBar}>
+            <label className={styles.searchField}>
+              <span>Find a record</span>
+              <span className={styles.searchInput}>
+                <Search size={18} aria-hidden="true" />
+                <input value={search} onChange={(event) => setSearch(event.target.value)} type="search" placeholder="Search records" />
+              </span>
+            </label>
+            <label>
+              <span>Evidence type</span>
+              <select value={filter} onChange={(event) => setFilter(dataType(event.target.value))}>
+                <option value="all">All evidence types</option>
+                {evidenceTypes.map((type) => <option key={type} value={type}>{type === 'NO DATA' ? 'No data' : type}</option>)}
+              </select>
+            </label>
+          </div>}
+          <div className={styles.resultsLine}>
+            <p aria-live="polite" className="muted">{count} {count === 1 ? 'record' : 'records'}</p>
+            {focus && <Link to={`/strategy/evidence?tab=${activeTab}`} onClick={clearFilters}>Show all records</Link>}
+            <details className={styles.evidenceLegend}>
+              <summary>Evidence categories</summary>
+              <ul>
+                {evidenceTypes.map((type) => (
+                  <li key={type}><EvidenceBadge type={type} /></li>
+                ))}
+              </ul>
+            </details>
+          </div>
         </div>
 
         {!count && <p className={`panel ${styles.empty}`}>
@@ -266,6 +281,7 @@ export default function EvidenceDashboardPage() {
               </dl>
               <div className={styles.provenanceBlock}>
                 <h3><FileCheck size={16} aria-hidden="true" /> Source and evidence</h3>
+                <LeadSource reference={item.source[0]} />
                 {item.source.length || item.evidenceIds.length ? <RecordSources record={item} /> : <p className="muted">No data</p>}
                 {item.inputRequestIds.length > 0 && (
                   <div className={styles.provenanceGap}>
