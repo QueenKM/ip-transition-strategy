@@ -9,7 +9,7 @@
 [![GITHUB PAGES](https://img.shields.io/badge/GITHUB_PAGES-STATIC-293E40?style=flat-square&logo=githubpages&logoColor=white)](.github/workflows/deploy.yml)
 [![Pages deployment workflow status](https://github.com/QueenKM/ip-transition-strategy/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/QueenKM/ip-transition-strategy/actions/workflows/deploy.yml)
 
-An independent university case study for Italiana Petroli. Explore how refinery choices, selective station investment and customer services could inform the next capital decision.
+An independent university case study for Italiana Petroli. It makes the case for more efficient refining, selective station upgrades and capital decisions grounded in customer and operating evidence.
 
 **[→ Explore the Live Strategy Prototype](https://queenkm.github.io/ip-transition-strategy/#/strategy)**
 
@@ -48,21 +48,7 @@ How could IP respond to regulation and changing transport demand while investing
 
 ## Integrated value chain
 
-Certified fuel supply and grid-supplied charging converge at stations and in fleet services. Operating and demand records inform which initiatives to review next.
-
-```mermaid
-flowchart TD
-    A["Regulation and market demand"] --> B["Refinery efficiency and qualified fuels"]
-    A --> C["Electricity procurement and grid access"]
-    B --> D["Fuel logistics and eligible outlets"]
-    C --> E["Charging and site operations"]
-    D --> F["Station, customer and fleet services"]
-    E --> F
-    F --> G["Operational and demand evidence"]
-    G --> H["Human investment review"]
-    H -.-> B
-    H -.-> E
-```
+Certified fuel supply and grid-supplied charging follow different physical routes. Station and fleet services return demand and operating evidence to the same investment gate.
 
 [![Integrated Value Chain showing the liquid-fuel and electricity pathways](docs/screenshots/value-chain.png)](https://queenkm.github.io/ip-transition-strategy/#/strategy/value-chain)
 
@@ -114,6 +100,20 @@ For the XTL-HVO pilot, the simulated request appears under **Demo demand signals
     </td>
   </tr>
 </table>
+
+## How the platform works
+
+```mermaid
+flowchart TD
+    A["Regulation and demand"] --> B["Refining and qualified fuels"]
+    A --> C["Electricity and grid access"]
+    B --> D["Fuel logistics and eligible outlets"]
+    C --> E["Site and charging operations"]
+    D --> F["Customer and fleet services"]
+    E --> F
+    F --> G["Demand and operating evidence"]
+    G --> H["Investment gate and human approval"]
+```
 
 ## Evidence and accountability
 
