@@ -1,0 +1,130 @@
+import { Factory, Fuel, LaptopMinimal } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router'
+import { routes } from '../app/routes'
+import { EvidenceBadge, RecordSources } from '../components/evidence/Evidence'
+import { PageHeading } from '../components/layout/PageHeading'
+import styles from '../components/strategy/PortfolioRoadmap.module.css'
+import { StrategyRecordLinks } from '../components/strategy/StrategyRecordLinks'
+import { roadmap } from '../data/roadmap'
+import type { Horizon } from '../models/strategy'
+import { describeEntity } from '../utils/selectRecords'
+
+const horizonNames: Record<Horizon, string> = {
+  '0–3 years': 'Near term',
+  '3–7 years': 'Medium term',
+  '7–15+ years': 'Long term',
+}
+
+const lanes = [
+  { id: 'refining', title: 'Refining', Icon: Factory },
+  { id: 'distribution', title: 'Distribution', Icon: Fuel },
+  { id: 'digital', title: 'Digital platform', Icon: LaptopMinimal },
+] as const
+
+function RoadmapList({ items }: { items: readonly string[] }) {
+  if (!items.length) return <span className="muted">No data</span>
+
+  return (
+    <ul className={styles.list}>
+      {items.map((item) => <li key={item}>{item}</li>)}
+    </ul>
+  )
+}
+
+export default function RoadmapPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const phase = roadmap.find(({ id }) => id === searchParams.get('phase')) ?? roadmap[0]
+
+  return (
+    <div className="page stack">
+      <PageHeading
+        eyebrow="Strategy control"
+        title="Integrated Roadmap"
+        description="The horizons run from strategy launch. Progress depends on evidence and a human decision at each gate."
+      >
+        <Link className="button button-secondary" to={routes.evidence}>Review KPIs and evidence</Link>
+      </PageHeading>
+
+      {phase ? (
+        <>
+          <div className={styles.horizonPicker} role="group" aria-label="Proposed time horizons">
+            {roadmap.map((option) => (
+              <button
+                type="button"
+                className={styles.horizonChoice}
+                key={option.id}
+                aria-pressed={option.id === phase.id}
+                aria-controls="roadmap-phase"
+                onClick={() => setSearchParams({ phase: option.id })}
+              >
+                <small>{horizonNames[option.timeHorizon]}</small>
+                <strong>{option.timeHorizon}</strong>
+              </button>
+            ))}
+          </div>
+
+          <section id="roadmap-phase" className="panel stack" aria-labelledby="roadmap-phase-title">
+            <header className={styles.phaseIntro}>
+              <div className={styles.cardHeader}>
+                <span className="tag">{phase.status}</span>
+                <EvidenceBadge type={phase.evidenceType} />
+              </div>
+              <h2 id="roadmap-phase-title">{phase.title}</h2>
+              <p>{phase.objective}</p>
+              {phase.description !== phase.objective && <p className="muted">{phase.description}</p>}
+            </header>
+
+            <div className={styles.lanes}>
+              {lanes.map(({ id, title, Icon }) => (
+                <section className={styles.lane} key={id} aria-labelledby={`roadmap-lane-${id}`}>
+                  <div className={styles.laneHeading}>
+                    <Icon size={19} aria-hidden="true" />
+                    <h3 id={`roadmap-lane-${id}`}>{title}</h3>
+                  </div>
+                  {phase.actions[id].length ? (
+                    <ul className={styles.list}>
+                      {phase.actions[id].map(({ initiativeId, action }) => {
+                        const { title: initiativeTitle, href } = describeEntity({ kind: 'initiative', id: initiativeId })
+
+                        return (
+                          <li key={`${initiativeId}-${action}`}>
+                            {action}
+                            {href && <Link className={styles.actionLink} to={href}>{initiativeTitle}</Link>}
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  ) : <span className="muted">No data</span>}
+                </section>
+              ))}
+            </div>
+          </section>
+
+          <div className={styles.phaseDetails}>
+            <section className={`panel ${styles.phaseDetail}`} aria-labelledby="roadmap-pilots">
+              <h3 id="roadmap-pilots">Pilots and dependencies</h3>
+              <h4>Pilot candidates</h4>
+              <StrategyRecordLinks records={phase.pilotIds.map((id) => ({ kind: 'initiative', id }))} />
+              <h4>Dependencies</h4>
+              <StrategyRecordLinks records={phase.dependencies} />
+            </section>
+            <section className={`panel ${styles.phaseDetail}`} aria-labelledby="roadmap-scale">
+              <h3 id="roadmap-scale">Scale-up conditions</h3>
+              <RoadmapList items={phase.scaleConditions} />
+            </section>
+            <section className={`panel ${styles.phaseDetail}`} aria-labelledby="roadmap-gates">
+              <h3 id="roadmap-gates">Investment gates and review triggers</h3>
+              <StrategyRecordLinks records={phase.gateIds.map((id) => ({ kind: 'gate', id }))} />
+              <RoadmapList items={phase.reviewTriggers} />
+            </section>
+            <section className={`panel ${styles.phaseDetail}`} aria-labelledby="roadmap-kpis">
+              <h3 id="roadmap-kpis">KPIs and evidence</h3>
+              <StrategyRecordLinks records={phase.kpiIds.map((id) => ({ kind: 'kpi', id }))} />
+              <RecordSources record={phase} />
+            </section>
+          </div>
+        </>
+      ) : <p className="panel">No data</p>}
+    </div>
+  )
+}

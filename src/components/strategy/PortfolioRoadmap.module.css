@@ -1,0 +1,295 @@
+.filters {
+  display: grid;
+  grid-template-columns: minmax(13rem, 1.5fr) repeat(3, minmax(8rem, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.field {
+  display: grid;
+  min-width: 0;
+  gap: 0.45rem;
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--control-border);
+  border-radius: 0.55rem;
+  background: var(--surface, #fff);
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+}
+
+.resultBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.resultBar p {
+  margin: 0;
+}
+
+.portfolioGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.technologyCard {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.technologyCard h2,
+.phaseIntro h2,
+.lane h3,
+.phaseDetail h3 {
+  margin: 0;
+}
+
+.technologyCard p,
+.phaseIntro p {
+  margin: 0;
+}
+
+.cardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metricGrid,
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0;
+}
+
+.metricGrid {
+  padding: 0.85rem;
+  border-radius: 0.6rem;
+  background: var(--canvas, #f0f5f0);
+}
+
+.metricGrid dt,
+.detailGrid dt,
+.cardContext dt,
+.initiativeContext dt {
+  font-size: 0.79rem;
+  font-weight: 650;
+  color: var(--muted, #48635e);
+}
+
+.metricGrid dd,
+.detailGrid dd,
+.cardContext dd,
+.initiativeContext dd {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+}
+
+.cardContext,
+.initiativeContext {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.initiativeContext {
+  margin-block: 0.85rem;
+  padding-block: 0.85rem;
+  border-block: 1px solid var(--line);
+}
+
+.technologyCard details {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line, #d7e2dd);
+}
+
+.technologyCard details summary {
+  min-height: 2rem;
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.technologyCard details[open] summary {
+  margin-bottom: 0.8rem;
+}
+
+.cardAction {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.cardAction :global(.button) {
+  width: fit-content;
+}
+
+.horizonPicker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.horizonChoice {
+  display: grid;
+  align-content: center;
+  gap: 0.3rem;
+  min-height: 5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--control-border);
+  border-radius: 0.7rem;
+  background: var(--surface, #fff);
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.horizonChoice:hover {
+  border-color: var(--action);
+}
+
+.horizonChoice[aria-pressed='true'] {
+  border-color: var(--nav);
+  background: var(--nav);
+  color: #fff;
+}
+
+.horizonChoice small {
+  font-size: 0.79rem;
+  line-height: 1.3;
+}
+
+.horizonChoice strong {
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+}
+
+.phaseIntro {
+  display: grid;
+  gap: 0.6rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line, #d7e2dd);
+}
+
+.lanes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.lane,
+.phaseDetail {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  gap: 0.6rem;
+}
+
+.lane {
+  padding: 1rem;
+  border: 1px solid var(--line, #d7e2dd);
+  border-radius: 0.65rem;
+  background: var(--surface, #fff);
+}
+
+.laneHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--action);
+}
+
+.laneHeading svg {
+  flex: 0 0 auto;
+}
+
+.list {
+  display: grid;
+  gap: 0.5rem;
+  padding-left: 1.15rem;
+  margin: 0;
+}
+
+.actionLink {
+  display: flex;
+  align-items: center;
+  min-height: 1.5rem;
+  margin-top: 0.25rem;
+  width: fit-content;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.phaseDetails {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.phaseDetail h4 {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 650;
+  color: var(--muted, #48635e);
+}
+
+.linkedRecords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linkedRecords a {
+  display: inline-flex;
+  min-height: 2.25rem;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+@media (max-width: 60rem) {
+  .filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lanes {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 40rem) {
+  .portfolioGrid,
+  .phaseDetails {
+    grid-template-columns: 1fr;
+  }
+
+  .horizonChoice {
+    padding: 0.55rem 0.4rem;
+  }
+}
+
+@media (max-width: 27rem) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}

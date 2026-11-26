@@ -1,0 +1,386 @@
+.scenarioBar {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem 1.125rem;
+  margin-block: 1.5rem;
+  border: 1px solid #e1d9ee;
+  border-radius: 0.75rem;
+  background: var(--illustrative-bg);
+  color: var(--illustrative-fg);
+}
+
+.scenarioBar svg,
+.locationHead > svg,
+.receiptHeading svg {
+  flex-shrink: 0;
+}
+
+.scenarioBar p,
+.locationHead p,
+.journeyLead p,
+.empty p {
+  margin: 0.125rem 0 0;
+}
+
+.finder {
+  padding: 1.125rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.875rem;
+  background: var(--surface);
+}
+
+.filterHeading,
+.receiptHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.875rem;
+  color: var(--action);
+}
+
+.filterHeading h2,
+.receiptHeading h2 {
+  margin: 0;
+  color: var(--ink);
+}
+
+.filterHeading h2 {
+  font-size: 1.125rem;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 0.875rem;
+}
+
+.filters label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.filters select {
+  max-width: 100%;
+  padding: 0.5rem 0.75rem;
+  min-height: 2.75rem;
+  border: 1px solid var(--control-border);
+  border-radius: 0.45rem;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.filters button:disabled {
+  opacity: 0.75;
+  cursor: default;
+}
+
+.resultCount,
+.offerCarrier,
+.locationKind {
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.resultCount {
+  margin-block: 1.5rem 1rem;
+}
+
+.locationList,
+.location {
+  display: grid;
+  gap: 1rem;
+}
+
+.locationList {
+  gap: 1.5rem;
+}
+
+.location {
+  min-width: 0;
+  padding-inline-start: 1.25rem;
+  border-inline-start: 2px solid #b9cbc8;
+}
+
+.locationHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.locationHead > svg {
+  color: var(--action);
+  margin-top: 0.375rem;
+}
+
+.locationHead h2,
+.journeyLead h2 {
+  font-size: clamp(1.25rem, 3vw, 1.7rem);
+  line-height: 1.2;
+  margin: 0.125rem 0 0.375rem;
+}
+
+.locationHead p:last-child,
+.offer p,
+.journeyPanel p {
+  color: var(--muted);
+}
+
+.offerGrid,
+.journeyGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.offer {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1.125rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: var(--surface);
+}
+
+.offerTop,
+.offerActions,
+.journeyActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+}
+
+.offerIcon,
+.journeyBadge {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.625rem;
+  background: var(--verified-bg);
+  color: var(--verified-fg);
+}
+
+.offerCarrier {
+  margin: 0.75rem 0 0.15rem;
+}
+
+.offer h3 {
+  font-size: 1.1875rem;
+  margin: 0;
+}
+
+.offer h3 + p {
+  margin: 0.375rem 0 0;
+}
+
+.offerFacts,
+.journeyFacts {
+  display: grid;
+  gap: 0.625rem;
+  padding: 0.75rem 0;
+  margin: 0.875rem 0;
+  border-block: 1px solid var(--line);
+}
+
+.offerFacts > div,
+.journeyFacts > div {
+  display: grid;
+  grid-template-columns: minmax(7.25rem, 0.7fr) minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.offerFacts dt,
+.journeyFacts dt {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.offerFacts dd,
+.journeyFacts dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  overflow-wrap: anywhere;
+}
+
+.offerActions {
+  margin-top: auto;
+}
+
+.offerActions > a,
+.journeyActions > :is(a, button) {
+  justify-content: center;
+  text-align: center;
+}
+
+.empty,
+.journeyPanel {
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.875rem;
+  background: var(--surface);
+}
+
+.empty h2 {
+  margin: 0 0 0.375rem;
+}
+
+.empty a {
+  margin-top: 1rem;
+}
+
+.journeyLead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.875rem;
+  padding: 1.125rem;
+  margin-block: 1.5rem 1rem;
+  border: 1px solid #c4d7d3;
+  border-radius: 0.875rem;
+  background: #edf6f3;
+}
+
+.journeyLead p:last-child {
+  color: var(--muted);
+}
+
+.journeyBadge {
+  width: 3.125rem;
+  height: 3.125rem;
+  background: var(--action);
+  color: var(--surface);
+}
+
+.journeySteps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.journeySteps li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  min-width: 0;
+  padding: 0.625rem;
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.journeySteps li[aria-current] {
+  border-color: var(--action);
+  color: var(--action);
+}
+
+.stepMarker {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 50%;
+  background: var(--unknown-bg);
+}
+
+.journeySteps li[aria-current] .stepMarker {
+  background: var(--action);
+  color: var(--surface);
+}
+
+.journeyPanel {
+  min-width: 0;
+}
+
+.journeyPanel > h2,
+.receiptHeading h2 {
+  font-size: 1.1875rem;
+}
+
+.journeyPanel > h2 {
+  margin: 0 0 0.625rem;
+}
+
+.simulationNote {
+  margin: 0.375rem 0;
+  font-size: 0.875rem;
+}
+
+.sample {
+  color: var(--illustrative-fg);
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.outcome {
+  margin-block: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--verified-bg);
+  color: var(--verified-fg);
+}
+
+.journeyActions {
+  justify-content: flex-start;
+  margin-top: 1rem;
+}
+
+@media (max-width: 56rem) {
+  .filters,
+  .journeySteps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 48rem) {
+  .offerGrid,
+  .journeyGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 32rem) {
+  .filters,
+  .journeySteps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .journeyLead {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .journeyLead > :last-child {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .location {
+    padding-inline-start: 0.625rem;
+  }
+
+  .locationHead {
+    gap: 0.375rem;
+  }
+
+  .offerFacts > div,
+  .journeyFacts > div {
+    grid-template-columns: minmax(5.5rem, 0.7fr) minmax(0, 1fr);
+  }
+}
