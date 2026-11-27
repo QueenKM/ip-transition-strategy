@@ -1,6 +1,7 @@
 import type { SourceDocument } from '../models/strategy'
 
 export const evidenceCheckedOn = '2026-11-26'
+export const lecture3CheckedOn = '2026-11-27'
 
 const sourceDefaults = {
   url: null,
@@ -35,6 +36,16 @@ export const sources: readonly SourceDocument[] = [
     kind: 'Lecture',
     fileName: 'Energy Power e OileGas_Lecture 2.pdf',
     publishedOn: '2026-11-25',
+  },
+  {
+    ...sourceDefaults,
+    id: 'lecture-3',
+    title: 'Lecture 3 — Limits of electrification, ETS and technological solutions for hard-to-abate sectors',
+    publisher: 'Politecnico di Milano',
+    kind: 'Lecture',
+    fileName: 'L3.pdf',
+    publishedOn: '2026-11-26',
+    checkedOn: lecture3CheckedOn,
   },
   {
     ...sourceDefaults,

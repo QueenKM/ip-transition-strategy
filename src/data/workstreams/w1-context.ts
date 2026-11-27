@@ -20,10 +20,11 @@ export const w1 = defineWorkstream({
       id: "regulation",
       title: "Regulatory conclusions",
       description: "Identify binding requirements and decision implications.",
-      publicContext: "EU and Italian rules are available with their legal scope and limitations.",
+      publicContext: "Lecture 3 explains the distinction between the EU ETS for covered installations and the upstream ETS2 framework. IP applicability requires confirmation against current rules.",
       evidenceIds: [
         "E02",
-        "E03"
+        "E03",
+        "E16"
       ]
     },
     {

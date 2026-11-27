@@ -45,10 +45,11 @@ export const w3 = defineWorkstream({
       id: "electrification",
       title: "Electrification",
       description: "Evaluate specific refinery duties and electricity constraints.",
-      publicContext: "Lecture context describes industrial energy carriers and electricity-system constraints.",
+      publicContext: "Lecture 3 frames refinery electrification by heat duty, process emissions and firm power requirements.",
       evidenceIds: [
         "E11",
-        "E13"
+        "E13",
+        "E15"
       ],
       affectedRecords: [
         {
@@ -143,9 +144,10 @@ export const w3 = defineWorkstream({
       id: "hydrogen",
       title: "Hydrogen",
       description: "Assess use cases and case-specific infrastructure and economics.",
-      publicContext: "The disclosed Trecate project establishes context for its stated scope.",
+      publicContext: "Lecture 3 distinguishes refinery process hydrogen from vehicle fuel and explains renewable qualification. The Trecate disclosure provides separate IP-specific context.",
       evidenceIds: [
-        "E07"
+        "E07",
+        "E18"
       ],
       affectedRecords: [
         {
@@ -189,10 +191,11 @@ export const w3 = defineWorkstream({
       id: "carbon",
       title: "Carbon management",
       description: "Review residual emissions and feasibility, including full-chain dependencies.",
-      publicContext: "The public and lecture register frames refinery emissions and policy.",
+      publicContext: "Lecture 3 frames carbon capture around the residual emissions stream and confirms the need to assess capture, transport and storage together.",
       evidenceIds: [
         "E03",
-        "E12"
+        "E12",
+        "E19"
       ],
       affectedRecords: [
         {

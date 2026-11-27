@@ -34,10 +34,13 @@ export const w6 = defineWorkstream({
       id: "finance",
       title: "Investment case",
       description: "Provide a scoped cost model and its drivers.",
-      publicContext: "Lecture material describes infrastructure finance and procurement mechanisms.",
+      publicContext: "Lecture 3 offers classroom sensitivity examples for biomethane, hydrogen and CCS. For IP, use case-specific allowance exposure, power cost, operating hours and transport and storage tariffs where relevant.",
       evidenceIds: [
         "E13",
-        "E14"
+        "E14",
+        "E16",
+        "E19",
+        "E20"
       ],
       affectedRecords: [
         {

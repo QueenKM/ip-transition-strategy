@@ -93,9 +93,11 @@ export const w5 = defineWorkstream({
       id: "carriers",
       title: "Alternative energy carriers",
       description: "Assess carrier-specific demand, distribution and safety.",
-      publicContext: "Public hydrogen disclosure identifies intended links in its stated scope.",
+      publicContext: "Lecture 3 describes bio-CNG and bio-LNG pathways and hydrogen distribution dependencies. The public hydrogen disclosure identifies intended IP links within its stated scope.",
       evidenceIds: [
-        "E07"
+        "E07",
+        "E17",
+        "E18"
       ],
       affectedRecords: [
         {

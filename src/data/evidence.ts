@@ -1,5 +1,5 @@
 import type { EvidenceItem } from '../models/strategy'
-import { evidenceCheckedOn } from './sources'
+import { evidenceCheckedOn, lecture3CheckedOn } from './sources'
 
 const documented = {
   status: 'Available',
@@ -13,6 +13,12 @@ const documented = {
   caveat: null,
   inputRequestIds: [],
   impactOfGap: null,
+} as const
+
+const lecture3 = {
+  ...documented,
+  lastUpdated: lecture3CheckedOn,
+  reportingPeriod: '26 November 2026 lecture',
 } as const
 
 export const evidence: readonly EvidenceItem[] = [
@@ -214,6 +220,67 @@ export const evidence: readonly EvidenceItem[] = [
     owner: 'Workstreams 3, 5 and 6',
     scope: 'Academic technology and investment context',
     caveat: 'Indicative storage and financial examples are modelled. Cost savings and grid revenues require a site-level model and verified access.',
+  },
+  {
+    ...lecture3,
+    id: 'E15',
+    title: 'Lecture 3 · Industrial electrification limits',
+    description: 'The lecture distinguishes direct electrification of end uses from decarbonising electricity supply. It explains how heat requirements, process emissions, fossil feedstocks, electricity supply and long-lived assets affect feasibility.',
+    source: [{ sourceId: 'lecture-3', locator: 'pp. 6–7, 13–20' }],
+    owner: 'Workstream 3',
+    scope: 'Academic screening criteria for industrial electrification',
+    caveat: 'The temperature ranges are indicative. Refinery feasibility requires process-duty data, a heat balance, available firm power and a site-specific retrofit assessment.',
+  },
+  {
+    ...lecture3,
+    id: 'E16',
+    title: 'Lecture 3 · Carbon pricing and regulatory scope',
+    description: 'The lecture explains EU ETS allowance surrender and free allocation, the relationship to CBAM, and the separate upstream ETS2 framework for fuels used in road transport and buildings.',
+    source: [{ sourceId: 'lecture-3', locator: 'pp. 25–32' }],
+    owner: 'Workstreams 1 and 6',
+    scope: 'Academic explanation of European carbon-pricing mechanisms',
+    caveat: 'The slides distinguish rules from proposals. Confirm current law, effective dates and the obligated entity for each IP activity before modelling exposure.',
+  },
+  {
+    ...lecture3,
+    id: 'E17',
+    title: 'Lecture 3 · Biomethane feedstocks and transport pathways',
+    description: 'The lecture explains biogas upgrading, sustainability differences by feedstock, gas-grid injection and the use of biomethane as bio-CNG or bio-LNG for compatible vehicles.',
+    source: [{ sourceId: 'lecture-3', locator: 'pp. 39–45' }],
+    owner: 'Workstream 5',
+    scope: 'Academic context for biomethane supply and distribution',
+    caveat: 'A distribution case needs evidence on eligible supply and traceability, compatible vehicles, site and dispensing rights, and a buyer or offtake commitment.',
+  },
+  {
+    ...lecture3,
+    id: 'E18',
+    title: 'Lecture 3 · Hydrogen use cases and renewable qualification',
+    description: 'The lecture contrasts hydrogen as a feedstock in refinery hydrotreating and hydrocracking with its use as a vehicle fuel. It covers additionality and temporal and geographic matching for renewable hydrogen, and the trade-offs in connecting production, storage and end use.',
+    source: [{ sourceId: 'lecture-3', locator: 'pp. 47–53, 56' }],
+    owner: 'Workstreams 3 and 5',
+    scope: 'Academic context for refinery and transport hydrogen pathways',
+    caveat: 'Refinery substitution and road refuelling require separate cases for power, demand, cost, infrastructure and applicable certification.',
+  },
+  {
+    ...lecture3,
+    id: 'E19',
+    title: 'Lecture 3 · Carbon capture, transport and storage',
+    description: 'The lecture discusses carbon capture for residual industrial emissions. Its comparison considers CO₂ concentration at the source, transport and storage access, and tariffs for shared networks.',
+    source: [{ sourceId: 'lecture-3', locator: 'pp. 58–61, 64–65' }],
+    owner: 'Workstreams 3 and 6',
+    scope: 'Academic screening context for the full CCS chain',
+    caveat: 'A site case needs a measured emissions stream, capture feasibility, a credible transport and storage route and the delivered cost per tonne.',
+  },
+  {
+    ...lecture3,
+    id: 'E20',
+    title: 'Lecture 3 · Illustrative cost sensitivities',
+    description: 'The worked examples compare biomethane production costs with market value and policy support, model levelised hydrogen cost at different electrolyser operating hours, and compare a cement CCS scenario with an allowance-price scenario and a carbon contract for difference.',
+    evidenceType: 'ILLUSTRATIVE OR MODELLED VALUE',
+    source: [{ sourceId: 'lecture-3', locator: 'pp. 44, 55, 65' }],
+    owner: 'Workstream 6',
+    scope: 'Classroom scenarios for the sensitivity of technology economics',
+    caveat: 'Use the scenarios to identify variables for sensitivity testing. IP economics require actual case inputs, including delivered tariffs, contracted utilisation and site or supply costs.',
   },
   {
     ...documented,
